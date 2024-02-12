@@ -24,7 +24,8 @@ func (h *BookHandler) GetBooks(ctx *gin.Context) {
 
 	books, err := h.bookUseCase.GetBooks(title)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, dto.Response{
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, 
+			dto.Response{
 			Msg:  err.Error(),
 			Data: nil,
 		})
