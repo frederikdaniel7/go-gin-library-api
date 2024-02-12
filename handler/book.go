@@ -19,19 +19,34 @@ func NewBookHandler(bookUseCase usecase.BookUseCase) *BookHandler {
 }
 
 func (h *BookHandler) GetAllBooks(ctx *gin.Context) {
-	books, err := h.bookUseCase.GetAll()
 
-	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, dto.Response{
-			Msg:  err.Error(),
-			Data: nil,
+	title := ctx.Query("title")
+	if title != "" {
+		books, err := h.bookUseCase.GetBookByTitle(title)
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, dto.Response{
+				Msg:  err.Error(),
+				Data: nil,
+			})
+			return
+		}
+		ctx.JSON(http.StatusOK, dto.Response{
+			Msg:  "OK",
+			Data: books,
 		})
-		return
+	} else {
+		books, err := h.bookUseCase.GetAll()
+		if err != nil {
+			ctx.AbortWithStatusJSON(http.StatusInternalServerError, dto.Response{
+				Msg:  err.Error(),
+				Data: nil,
+			})
+			return
+		}
+		ctx.JSON(http.StatusOK, dto.Response{
+			Msg:  "OK",
+			Data: books,
+		})
 	}
-
-	ctx.JSON(http.StatusOK, dto.Response{
-		Msg:  "OK",
-		Data: books,
-	})
 
 }
