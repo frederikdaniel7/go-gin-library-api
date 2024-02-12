@@ -42,4 +42,68 @@ func TestBookHandler_GetBooks(t *testing.T) {
 		assert.Equal(t, string(errMsg), w.Body.String())
 	})
 
+	t.Run("should return books when succesful", func(t *testing.T) {
+		mockBookUseCase := new(mocks.BookUseCase)
+		books := []dto.Book{
+			{
+				ID:          1,
+				Title:       "test",
+				Description: "test",
+				Quantity:    1,
+				Cover:       "test",
+			},
+		}
+		mockBookUseCase.On("GetBooks", emptyTitle).Return(books, nil)
+		bookHandler := handler.NewBookHandler(mockBookUseCase)
+		r := server.SetupRouter(&server.HandlerOpts{
+			Book: bookHandler,
+		})
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/books", nil)
+		r.ServeHTTP(w, req)
+		response := dto.Response{
+			Msg:  "OK",
+			Data: books,
+		}
+		successMsg, _ := json.Marshal(response)
+
+		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+		assert.Equal(t, string(successMsg), w.Body.String())
+	})
+
+	t.Run("should return books with certain title when succesful", func(t *testing.T) {
+		mockBookUseCase := new(mocks.BookUseCase)
+		books := []dto.Book{
+			{
+				ID:          1,
+				Title:       "test",
+				Description: "test",
+				Quantity:    1,
+				Cover:       "test",
+			},
+		}
+		mockBookUseCase.On("GetBooks", testTitle).Return(books, nil)
+		bookHandler := handler.NewBookHandler(mockBookUseCase)
+		r := server.SetupRouter(&server.HandlerOpts{
+			Book: bookHandler,
+		})
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodGet, "/books", nil)
+		q := req.URL.Query()
+		q.Add("title", testTitle)
+		req.URL.RawQuery = q.Encode()
+
+		r.ServeHTTP(w, req)
+		response := dto.Response{
+			Msg:  "OK",
+			Data: books,
+		}
+		successMsg, _ := json.Marshal(response)
+
+		assert.Equal(t, http.StatusOK, w.Result().StatusCode)
+		assert.Equal(t, string(successMsg), w.Body.String())
+	})
+
 }
