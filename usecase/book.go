@@ -9,6 +9,7 @@ import (
 type BookUseCase interface {
 	GetAll() ([]dto.Book, error)
 	GetBookByTitle(title string) ([]dto.Book, error)
+	GetBooks(title string) ([]dto.Book, error)
 }
 
 type bookUseCaseImpl struct {
@@ -44,6 +45,32 @@ func (b *bookUseCaseImpl) GetBookByTitle(title string) ([]dto.Book, error) {
 	booksJson := []dto.Book{}
 	for _, book := range books {
 		booksJson = append(booksJson, utils.ConvertBookToJson(book))
+	}
+
+	return booksJson, nil
+
+}
+
+func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.Book, error) {
+
+	booksJson := []dto.Book{}
+
+	if title == "" {
+		books, err := b.bookRepository.FindAll()
+		for _, book := range books {
+			booksJson = append(booksJson, utils.ConvertBookToJson(book))
+		}
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		books, err := b.bookRepository.FindOneBookByTitle(title)
+		for _, book := range books {
+			booksJson = append(booksJson, utils.ConvertBookToJson(book))
+		}
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return booksJson, nil
