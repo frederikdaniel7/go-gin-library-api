@@ -2,7 +2,8 @@ package usecase
 
 import (
 	"errors"
-
+	
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/repository"
@@ -33,7 +34,7 @@ func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.Book, error) {
 		books, err = b.bookRepository.FindAll()
 
 	} else {
-		books, err = b.bookRepository.FindOneBookByTitle(title)
+		books, err = b.bookRepository.FindSimilarBookByTitle(title)
 
 	}
 	if err != nil {
@@ -49,13 +50,13 @@ func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.Book, error) {
 
 func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
 
-	checkExist, err := b.bookRepository.FindOneBookByTitle(body.Title)
+	checkExist, err := b.bookRepository.FindSimilarBookByTitle(body.Title)
 	if err!= nil {
         return nil, err
     }
 	for _, book := range checkExist {
 		if body.Title == book.Title {
-			return nil, errors.New("book already exists")
+			return nil, errors.New(constant.ResponseMsgBookAlreadyExists)
 		}
 	}
 

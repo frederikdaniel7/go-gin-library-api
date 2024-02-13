@@ -13,5 +13,6 @@ func SetupRouter(opts *HandlerOpts) *gin.Engine {
 	router := gin.Default()
 
 	router.GET("/books", opts.Book.GetBooks)
+	router.POST("/books", opts.Book.CreateBook)
 	return router
 }

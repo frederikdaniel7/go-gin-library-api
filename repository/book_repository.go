@@ -7,13 +7,14 @@ import (
 	"log"
 	"strings"
 
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 )
 
 type BookRepository interface {
 	FindAll() ([]entity.Book, error)
-	FindOneBookByTitle(title string) ([]entity.Book, error)
+	FindSimilarBookByTitle(title string) ([]entity.Book, error)
 	CreateBook(body dto.CreateBookBody) (*entity.Book, error)
 }
 
@@ -56,7 +57,7 @@ func (r *bookRepository) FindAll() ([]entity.Book, error) {
 	return books, nil
 }
 
-func (r *bookRepository) FindOneBookByTitle(title string) ([]entity.Book, error) {
+func (r *bookRepository) FindSimilarBookByTitle(title string) ([]entity.Book, error) {
 	books := []entity.Book{}
 
 	q := `SELECT id,title,book_description, quantity,cover,created_at,updated_at,deleted_at from books
@@ -96,7 +97,7 @@ func (r *bookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, erro
 	sb.WriteString("INSERT INTO books (title, book_description, quantity")
 	if body.Cover == "" {
 		sb.WriteString(") VALUES (")
-		for i := 1; i < 4; i++ {
+		for i := 1; i < constant.LenCreateBody-1; i++ {
 			sb.WriteString("$" + fmt.Sprintf("%d", i))
 			if i != 3 {
 				sb.WriteString(",")
@@ -104,7 +105,7 @@ func (r *bookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, erro
 		}
 	} else {
 		sb.WriteString(",cover) VALUES (")
-		for i := 1; i < 5; i++ {
+		for i := 1; i < constant.LenCreateBody; i++ {
 			sb.WriteString("$" + fmt.Sprintf("%d", i))
 			if i != 4 {
 				sb.WriteString(",")
