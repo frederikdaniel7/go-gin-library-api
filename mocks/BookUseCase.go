@@ -12,6 +12,29 @@ type BookUseCase struct {
 	mock.Mock
 }
 
+// CreateBook provides a mock function with given fields: body
+func (_m *BookUseCase) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
+	ret := _m.Called(body)
+
+	var r0 *dto.Book
+	if rf, ok := ret.Get(0).(func(dto.CreateBookBody) *dto.Book); ok {
+		r0 = rf(body)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*dto.Book)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(dto.CreateBookBody) error); ok {
+		r1 = rf(body)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetBooks provides a mock function with given fields: title
 func (_m *BookUseCase) GetBooks(title string) ([]dto.Book, error) {
 	ret := _m.Called(title)

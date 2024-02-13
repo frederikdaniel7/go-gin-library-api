@@ -10,7 +10,7 @@ type Book struct {
 	Title       string
 	Description string
 	Quantity    int
-	Cover       string
+	Cover       sql.NullString
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   sql.NullTime

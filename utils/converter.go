@@ -11,13 +11,15 @@ func ConvertBookToJson(book entity.Book) dto.Book {
 		Title:       book.Title,
 		Description: book.Description,
 		Quantity:    book.Quantity,
-		Cover:       book.Cover,
 		CreatedAt:   book.CreatedAt,
 		UpdatedAt:   book.UpdatedAt,
 	}
 
 	if book.DeletedAt.Valid {
 		converted.DeletedAt = &book.DeletedAt.Time
+	}
+	if book.Cover.Valid{
+		converted.Cover = book.Cover.String
 	}
 	return converted
 }

@@ -40,7 +40,7 @@ func main() {
 	})
 
 	router.GET("/books", bookHandler.GetBooks)
-
+	router.POST("/books", bookHandler.CreateBook)
 	if err := router.Run(":8081"); err != nil {
 		log.Fatal(err)
 	}

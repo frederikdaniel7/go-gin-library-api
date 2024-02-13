@@ -24,11 +24,11 @@ func (h *BookHandler) GetBooks(ctx *gin.Context) {
 
 	books, err := h.bookUseCase.GetBooks(title)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, 
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError,
 			dto.Response{
-			Msg:  err.Error(),
-			Data: nil,
-		})
+				Msg:  err.Error(),
+				Data: nil,
+			})
 		return
 	}
 	ctx.JSON(http.StatusOK, dto.Response{
@@ -36,4 +36,29 @@ func (h *BookHandler) GetBooks(ctx *gin.Context) {
 		Data: books,
 	})
 
+}
+
+func (h *BookHandler) CreateBook(ctx *gin.Context) {
+	var body dto.CreateBookBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			dto.Response{
+				Msg:  err.Error(),
+				Data: nil,
+			})
+		return
+	}
+	book, err := h.bookUseCase.CreateBook(body)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError,
+			dto.Response{
+				Msg:  err.Error(),
+				Data: nil,
+			})
+		return
+	}
+	ctx.JSON(http.StatusOK, dto.Response{
+		Msg:  "OK",
+		Data: book,
+	})
 }

@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/repository"
@@ -9,6 +11,7 @@ import (
 
 type BookUseCase interface {
 	GetBooks(title string) ([]dto.Book, error)
+	CreateBook(body dto.CreateBookBody) (*dto.Book, error)
 }
 
 type bookUseCaseImpl struct {
@@ -42,4 +45,24 @@ func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.Book, error) {
 
 	return booksJson, nil
 
+}
+
+func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
+
+	checkExist, err := b.bookRepository.FindOneBookByTitle(body.Title)
+	if err!= nil {
+        return nil, err
+    }
+	for _, book := range checkExist {
+		if body.Title == book.Title {
+			return nil, errors.New("book already exists")
+		}
+	}
+
+	book, err := b.bookRepository.CreateBook(body)
+	if err != nil {
+		return nil, err
+	}
+	bookJson := utils.ConvertBookToJson(*book)
+	return &bookJson, nil
 }
