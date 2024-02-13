@@ -2,9 +2,7 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
@@ -13,8 +11,8 @@ import (
 )
 
 type BookRepository interface {
-	FindAll() ([]entity.Book, error)
-	FindSimilarBookByTitle(title string) ([]entity.Book, error)
+	FindAll() ([]entity.BookDetail, error)
+	FindSimilarBookByTitle(title string) ([]entity.BookDetail, error)
 	CreateBook(body dto.CreateBookBody) (*entity.Book, error)
 }
 
@@ -28,24 +26,30 @@ func NewBookRepository(db *sql.DB) *bookRepository {
 	}
 }
 
-func (r *bookRepository) FindAll() ([]entity.Book, error) {
-	books := []entity.Book{}
+func (r *bookRepository) FindAll() ([]entity.BookDetail, error) {
+	books := []entity.BookDetail{}
 
-	q := `SELECT id,title,book_description, quantity,cover,created_at,updated_at,deleted_at from books`
+	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id, a.author_name, b.created_at,b.updated_at,b.deleted_at from books b
+	LEFT JOIN author a ON a.id = b.author_id`
 
 	rows, err := r.db.Query(q)
 	if err != nil {
-		log.Println("query error", err)
+		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var book entity.Book
+		author := entity.Author{}
+		book := entity.BookDetail{}
+
 		err := rows.Scan(&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover,
-			&book.CreatedAt, &book.UpdatedAt, &book.DeletedAt,
-		)
+			&author.ID, &author.Name, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
 		if err != nil {
+			fmt.Println("error query")
 			return nil, err
+		}
+		if author.ID != nil {
+			book.Author = &author
 		}
 		books = append(books, book)
 	}
@@ -57,10 +61,11 @@ func (r *bookRepository) FindAll() ([]entity.Book, error) {
 	return books, nil
 }
 
-func (r *bookRepository) FindSimilarBookByTitle(title string) ([]entity.Book, error) {
-	books := []entity.Book{}
+func (r *bookRepository) FindSimilarBookByTitle(title string) ([]entity.BookDetail, error) {
+	books := []entity.BookDetail{}
 
-	q := `SELECT id,title,book_description, quantity,cover,created_at,updated_at,deleted_at from books
+	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id,a.author_name, b.created_at,b.updated_at,b.deleted_at from books b 
+	LEFT JOIN author a ON a.id = b.author_id
 	where title ILIKE '%' ||$1|| '%'`
 
 	rows, err := r.db.Query(q, title)
@@ -72,12 +77,18 @@ func (r *bookRepository) FindSimilarBookByTitle(title string) ([]entity.Book, er
 		return nil, err
 	}
 	for rows.Next() {
-		var book entity.Book
+		author := entity.Author{}
+		book := entity.BookDetail{}
+
 		err := rows.Scan(&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover,
+			&author.ID, &author.Name,
 			&book.CreatedAt, &book.UpdatedAt, &book.DeletedAt,
 		)
 		if err != nil {
 			return nil, err
+		}
+		if author.ID != nil {
+			book.Author = &author
 		}
 		books = append(books, book)
 	}
@@ -94,38 +105,19 @@ func (r *bookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, erro
 	book := entity.Book{}
 
 	var sb strings.Builder
-	sb.WriteString("INSERT INTO books (title, book_description, quantity")
-	if body.Cover == "" {
-		sb.WriteString(") VALUES (")
-		for i := 1; i < constant.LenCreateBody-1; i++ {
-			sb.WriteString("$" + fmt.Sprintf("%d", i))
-			if i != 3 {
-				sb.WriteString(",")
-			}
-		}
-	} else {
-		sb.WriteString(",cover) VALUES (")
-		for i := 1; i < constant.LenCreateBody; i++ {
-			sb.WriteString("$" + fmt.Sprintf("%d", i))
-			if i != 4 {
-				sb.WriteString(",")
-			}
+	sb.WriteString("INSERT INTO books (title, book_description, quantity, cover, author_id)")
+	sb.WriteString("VALUES (")
+	for i := 1; i < constant.LenCreateBody; i++ {
+		sb.WriteString("$" + fmt.Sprintf("%d", i))
+		if i != 5 {
+			sb.WriteString(",")
 		}
 	}
-	sb.WriteString(")returning id, title, book_description,cover, created_at, updated_at, deleted_at;")
-	if body.Cover != "" {
-		err := r.db.QueryRow(sb.String(), body.Title, body.Description, body.Quantity, body.Cover).Scan(
-			&book.ID, &book.Title, &book.Description, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
-		if err != nil {
-			return nil, errors.New(sb.String())
-		}
-
-		return &book, nil
-	}
-	err := r.db.QueryRow(sb.String(), body.Title, body.Description, body.Quantity).Scan(
-		&book.ID, &book.Title, &book.Description, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
+	sb.WriteString(")returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at;")
+	err := r.db.QueryRow(sb.String(), body.Title, body.Description, body.Quantity, body.Cover, body.AuthorID).Scan(
+		&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
 	if err != nil {
-		return nil, errors.New(sb.String())
+		return nil, err
 	}
 
 	return &book, nil

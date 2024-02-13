@@ -3,10 +3,13 @@ package handler_test
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/handler"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/mocks"
@@ -17,6 +20,7 @@ import (
 const (
 	emptyTitle         = ""
 	testTitle          = "test"
+	testDescription    = "test description"
 	errorReturnNothing = "error return nothing"
 )
 
@@ -44,13 +48,18 @@ func TestBookHandler_GetBooks(t *testing.T) {
 
 	t.Run("should return books when succesful", func(t *testing.T) {
 		mockBookUseCase := new(mocks.BookUseCase)
-		books := []dto.Book{
+		testCover := "test"
+		books := []dto.BookDetail{
 			{
 				ID:          1,
 				Title:       "test",
 				Description: "test",
 				Quantity:    1,
-				Cover:       "test",
+				Cover:       &testCover,
+				Author: &dto.Author{
+					ID:   1,
+					Name: "test",
+				},
 			},
 		}
 		mockBookUseCase.On("GetBooks", emptyTitle).Return(books, nil)
@@ -74,13 +83,15 @@ func TestBookHandler_GetBooks(t *testing.T) {
 
 	t.Run("should return books with certain title when succesful", func(t *testing.T) {
 		mockBookUseCase := new(mocks.BookUseCase)
-		books := []dto.Book{
+		testCover := "test"
+		books := []dto.BookDetail{
 			{
 				ID:          1,
 				Title:       "test",
 				Description: "test",
 				Quantity:    1,
-				Cover:       "test",
+				Cover:       &testCover,
+				Author:      &dto.Author{},
 			},
 		}
 		mockBookUseCase.On("GetBooks", testTitle).Return(books, nil)
@@ -106,4 +117,39 @@ func TestBookHandler_GetBooks(t *testing.T) {
 		assert.Equal(t, string(successMsg), w.Body.String())
 	})
 
+}
+
+func TestBookHandler_CreateBook(t *testing.T) {
+	t.Run("should be able to create book", func(t *testing.T) {
+		testQuantity := 5
+		body := dto.CreateBookBody{
+			Title:       testTitle,
+			Description: testDescription,
+			Quantity:    &testQuantity,
+		}
+		book := dto.Book{
+			ID:          1,
+			Title:       testTitle,
+			Description: testDescription,
+			Quantity:    1,
+			Cover:       nil,
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			DeletedAt:   nil,
+		}
+		bodyJson, err := json.Marshal(body)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		response := dto.Response{
+			Msg:  constant.ResponseMsgOK,
+			Data: book,
+		}
+		var expectedRes []byte
+		expectedRes, err = json.Marshal(response)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+
+	})
 }

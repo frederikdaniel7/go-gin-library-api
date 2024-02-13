@@ -2,7 +2,8 @@ package usecase
 
 import (
 	"errors"
-	
+	"fmt"
+
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
@@ -11,24 +12,26 @@ import (
 )
 
 type BookUseCase interface {
-	GetBooks(title string) ([]dto.Book, error)
+	GetBooks(title string) ([]dto.BookDetail, error)
 	CreateBook(body dto.CreateBookBody) (*dto.Book, error)
 }
 
 type bookUseCaseImpl struct {
-	bookRepository repository.BookRepository
+	bookRepository   repository.BookRepository
+	authorRepository repository.AuthorRepository
 }
 
-func NewBookUseCaseImpl(bookRepository repository.BookRepository) *bookUseCaseImpl {
+func NewBookUseCaseImpl(bookRepository repository.BookRepository, authorRepository repository.AuthorRepository) *bookUseCaseImpl {
 	return &bookUseCaseImpl{
-		bookRepository: bookRepository,
+		bookRepository:   bookRepository,
+		authorRepository: authorRepository,
 	}
 }
 
-func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.Book, error) {
+func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.BookDetail, error) {
 
-	booksJson := []dto.Book{}
-	var books []entity.Book
+	booksJson := []dto.BookDetail{}
+	var books []entity.BookDetail
 	var err error
 	if title == "" {
 		books, err = b.bookRepository.FindAll()
@@ -41,7 +44,7 @@ func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.Book, error) {
 		return nil, err
 	}
 	for _, book := range books {
-		booksJson = append(booksJson, utils.ConvertBookToJson(book))
+		booksJson = append(booksJson, utils.ConvertBookDetailToJson(book))
 	}
 
 	return booksJson, nil
@@ -50,10 +53,18 @@ func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.Book, error) {
 
 func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
 
+	checkAuthorExists, err := b.authorRepository.FindOneById(*body.AuthorID)
+	if checkAuthorExists.ID == nil {
+		fmt.Printf("author id : %v", *body.AuthorID)
+		return nil, errors.New(constant.ResponseMsgAuthorDoesNotExist)
+	}
+	if err != nil {
+		return nil, err
+	}
 	checkExist, err := b.bookRepository.FindSimilarBookByTitle(body.Title)
-	if err!= nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 	for _, book := range checkExist {
 		if body.Title == book.Title {
 			return nil, errors.New(constant.ResponseMsgBookAlreadyExists)

@@ -12,13 +12,13 @@ type BookUseCase struct {
 	mock.Mock
 }
 
-// CreateBook provides a mock function with given fields: body
-func (_m *BookUseCase) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
-	ret := _m.Called(body)
+// CreateBook provides a mock function with given fields: body, authorId
+func (_m *BookUseCase) CreateBook(body dto.CreateBookBody, authorId int64) (*dto.Book, error) {
+	ret := _m.Called(body, authorId)
 
 	var r0 *dto.Book
-	if rf, ok := ret.Get(0).(func(dto.CreateBookBody) *dto.Book); ok {
-		r0 = rf(body)
+	if rf, ok := ret.Get(0).(func(dto.CreateBookBody, int64) *dto.Book); ok {
+		r0 = rf(body, authorId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*dto.Book)
@@ -26,8 +26,8 @@ func (_m *BookUseCase) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(dto.CreateBookBody) error); ok {
-		r1 = rf(body)
+	if rf, ok := ret.Get(1).(func(dto.CreateBookBody, int64) error); ok {
+		r1 = rf(body, authorId)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -36,15 +36,15 @@ func (_m *BookUseCase) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
 }
 
 // GetBooks provides a mock function with given fields: title
-func (_m *BookUseCase) GetBooks(title string) ([]dto.Book, error) {
+func (_m *BookUseCase) GetBooks(title string) ([]dto.BookDetail, error) {
 	ret := _m.Called(title)
 
-	var r0 []dto.Book
-	if rf, ok := ret.Get(0).(func(string) []dto.Book); ok {
+	var r0 []dto.BookDetail
+	if rf, ok := ret.Get(0).(func(string) []dto.BookDetail); ok {
 		r0 = rf(title)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]dto.Book)
+			r0 = ret.Get(0).([]dto.BookDetail)
 		}
 	}
 

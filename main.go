@@ -13,8 +13,8 @@ func main() {
 	InitDB()
 
 	bookRepository := repository.NewBookRepository(db)
-
-	bookUseCase := usecase.NewBookUseCaseImpl(bookRepository)
+	authorRepository := repository.NewAuthorRepository(db)
+	bookUseCase := usecase.NewBookUseCaseImpl(bookRepository, authorRepository)
 
 	bookHandler := handler.NewBookHandler(bookUseCase)
 

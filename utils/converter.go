@@ -18,8 +18,34 @@ func ConvertBookToJson(book entity.Book) dto.Book {
 	if book.DeletedAt.Valid {
 		converted.DeletedAt = &book.DeletedAt.Time
 	}
-	if book.Cover.Valid{
-		converted.Cover = book.Cover.String
+	if book.Cover.Valid {
+		converted.Cover = &book.Cover.String
 	}
+	return converted
+}
+
+func ConvertBookDetailToJson(book entity.BookDetail) dto.BookDetail {
+	converted := dto.BookDetail{
+		ID:          book.ID,
+		Title:       book.Title,
+		Description: book.Description,
+		Quantity:    book.Quantity,
+		CreatedAt:   book.CreatedAt,
+		UpdatedAt:   book.UpdatedAt,
+	}
+
+	if book.DeletedAt.Valid {
+		converted.DeletedAt = &book.DeletedAt.Time
+	}
+	if book.Cover.Valid {
+		converted.Cover = &book.Cover.String
+	}
+	if book.Author != nil {
+		converted.Author = &dto.Author{
+			ID:   book.Author.ID,
+			Name: book.Author.Name,
+		}
+	}
+
 	return converted
 }

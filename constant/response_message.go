@@ -5,5 +5,5 @@ const(
 	ResponseMsgErrorNotFound = "no book found"
 	ResponseMsgErrorInternal = "internal server error"
 	ResponseMsgBookAlreadyExists = "book already exists"
-	LenCreateBody = 5
+	ResponseMsgAuthorDoesNotExist = "author does not exist"
 )

@@ -51,6 +51,14 @@ func (h *BookHandler) CreateBook(ctx *gin.Context) {
 	}
 	book, err := h.bookUseCase.CreateBook(body)
 	if err != nil {
+		if err.Error() == constant.ResponseMsgAuthorDoesNotExist {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest,
+				dto.Response{
+					Msg:  err.Error(),
+					Data: nil,
+				})
+			return
+		}
 		if err.Error() == constant.ResponseMsgBookAlreadyExists {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest,
 				dto.Response{
@@ -66,7 +74,7 @@ func (h *BookHandler) CreateBook(ctx *gin.Context) {
 			})
 		return
 	}
-	ctx.JSON(http.StatusOK, dto.Response{
+	ctx.JSON(http.StatusCreated, dto.Response{
 		Msg:  "OK",
 		Data: book,
 	})
