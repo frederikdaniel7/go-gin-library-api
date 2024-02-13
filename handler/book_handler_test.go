@@ -49,6 +49,8 @@ func TestBookHandler_GetBooks(t *testing.T) {
 	t.Run("should return books when succesful", func(t *testing.T) {
 		mockBookUseCase := new(mocks.BookUseCase)
 		testCover := "test"
+		testID := int64(1)
+		testName := "test auth name"
 		books := []dto.BookDetail{
 			{
 				ID:          1,
@@ -57,8 +59,8 @@ func TestBookHandler_GetBooks(t *testing.T) {
 				Quantity:    1,
 				Cover:       &testCover,
 				Author: &dto.Author{
-					ID:   1,
-					Name: "test",
+					ID:   &testID,
+					Name: &testName,
 				},
 			},
 		}

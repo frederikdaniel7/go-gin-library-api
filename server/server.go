@@ -7,12 +7,14 @@ import (
 
 type HandlerOpts struct {
 	Book *handler.BookHandler
+	User *handler.UserHandler
 }
 
 func SetupRouter(opts *HandlerOpts) *gin.Engine {
 	router := gin.Default()
 
 	router.GET("/books", opts.Book.GetBooks)
+	router.GET("/users", opts.User.GetUsers)
 	router.POST("/books", opts.Book.CreateBook)
 	return router
 }

@@ -49,3 +49,19 @@ func ConvertBookDetailToJson(book entity.BookDetail) dto.BookDetail {
 
 	return converted
 }
+
+func ConvertUserToJson(user entity.User) dto.User {
+	converted := dto.User{
+		ID:        user.ID,
+		Name:      user.Name,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+
+	if user.DeletedAt.Valid {
+		converted.DeletedAt = &user.DeletedAt.Time
+	}
+	return converted
+}
