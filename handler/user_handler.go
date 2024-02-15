@@ -35,3 +35,46 @@ func (h *UserHandler) GetUsers(ctx *gin.Context) {
 		Data: users,
 	})
 }
+
+func (h *UserHandler) CreateUser(ctx *gin.Context) {
+	var body dto.CreateUserBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			dto.Response{
+				Msg:  err.Error(),
+				Data: nil,
+			})
+		return
+	}
+	user, err := h.userUseCase.CreateUser(body)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+	ctx.JSON(http.StatusCreated, dto.Response{
+		Msg:  "OK",
+		Data: user,
+	})
+}
+
+func (h *UserHandler) Login(ctx *gin.Context) {
+	var body dto.LoginBody
+	if err := ctx.ShouldBindJSON(&body); err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest,
+			dto.Response{
+				Msg:  err.Error(),
+				Data: nil,
+			})
+		return
+	}
+	err := h.userUseCase.Login(body)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+	ctx.JSON(http.StatusNoContent, dto.Response{
+		Msg:  "OK",
+		Data: nil,
+	})
+
+}
