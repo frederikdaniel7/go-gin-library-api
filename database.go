@@ -20,8 +20,7 @@ func InitDB() error {
 	return err
 }
 func ConnectDB() (*sql.DB, error) {
-	// "host=%s user=%s password=%s dbname=%s port=%d sslmode=disable TimeZone=Asia/Jakarta
-	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+		db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
