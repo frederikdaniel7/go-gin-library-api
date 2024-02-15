@@ -65,3 +65,24 @@ func ConvertUserToJson(user entity.User) dto.User {
 	}
 	return converted
 }
+
+func ConvertBorrowRecordToJson(record entity.BorrowRecord) dto.BorrowRecord {
+	converted := dto.BorrowRecord{
+		ID:            record.ID,
+		UserID:        record.UserID,
+		BookID:        record.BookID,
+		Status:        record.Status,
+		BorrowingDate: record.BorrowingDate,
+		CreatedAt:     record.CreatedAt,
+		UpdatedAt:     record.UpdatedAt,
+	}
+
+	if record.DeletedAt.Valid {
+		converted.DeletedAt = &record.DeletedAt.Time
+	}
+	if record.ReturningDate.Valid {
+		converted.ReturningDate = &record.ReturningDate.Time
+	}
+
+	return converted
+}

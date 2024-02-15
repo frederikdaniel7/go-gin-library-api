@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -14,6 +15,7 @@ type BookRepository interface {
 	FindAll() ([]entity.BookDetail, error)
 	FindSimilarBookByTitle(title string) ([]entity.BookDetail, error)
 	CreateBook(body dto.CreateBookBody) (*entity.Book, error)
+	FindOneById(id int64) (*entity.Book, error)
 }
 
 type bookRepository struct {
@@ -119,6 +121,22 @@ func (r *bookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, erro
 	if err != nil {
 		return nil, err
 	}
+
+	return &book, nil
+}
+
+func (r *bookRepository) FindOneById(id string) (*entity.Book, error) {
+	var book entity.Book
+
+	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover, 
+	b.created_at,b.updated_at,b.deleted_at from books b 
+	where b.id = $1`
+
+	row := r.db.QueryRow(q, id)
+	if row == nil {
+		return nil, errors.New("error query")
+	}
+	row.Scan(&book.ID, &book.Title, &book.Description, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
 
 	return &book, nil
 }

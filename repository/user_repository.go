@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 )
@@ -9,6 +10,7 @@ import (
 type UserRepository interface {
 	FindAll() ([]entity.User, error)
 	FindSimilarUserByName(name string) ([]entity.User, error)
+	FindUserById(id int64) (*entity.User, error)
 }
 
 type userRepository struct {
@@ -80,5 +82,21 @@ func (r *userRepository) FindSimilarUserByName(name string) ([]entity.User, erro
 		return nil, err
 	}
 	return users, nil
+
+}
+
+func (r *userRepository) FindUserById(id int64) (*entity.User, error) {
+	var user entity.User
+
+	q := `SELECT u.id, u.user_name, u.email,u.phone,u.created_at, u.updated_at
+	 from users u where u.id = $1`
+
+	row := r.db.QueryRow(q, id)
+	if row == nil {
+		return nil, errors.New("error query")
+	}
+	row.Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
+
+	return &user, nil
 
 }
