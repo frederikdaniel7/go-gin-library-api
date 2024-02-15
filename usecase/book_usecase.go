@@ -1,12 +1,12 @@
 package usecase
 
 import (
-	"errors"
-	"fmt"
+	"net/http"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/exception"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/repository"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/utils"
 )
@@ -55,8 +55,9 @@ func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error)
 
 	checkAuthorExists, err := b.authorRepository.FindOneById(*body.AuthorID)
 	if checkAuthorExists.ID == nil {
-		fmt.Printf("author id : %v", *body.AuthorID)
-		return nil, errors.New(constant.ResponseMsgAuthorDoesNotExist)
+		return nil, exception.NewErrorType(
+			http.StatusNotFound,
+			constant.ResponseMsgAuthorDoesNotExist)
 	}
 	if err != nil {
 		return nil, err
@@ -67,7 +68,9 @@ func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error)
 	}
 	for _, book := range checkExist {
 		if body.Title == book.Title {
-			return nil, errors.New(constant.ResponseMsgBookAlreadyExists)
+			return nil, exception.NewErrorType(
+				http.StatusPreconditionFailed,
+				constant.ResponseMsgBookAlreadyExists)
 		}
 	}
 
