@@ -86,3 +86,4 @@ func ConvertBorrowRecordToJson(record entity.BorrowRecord) dto.BorrowRecord {
 
 	return converted
 }
+

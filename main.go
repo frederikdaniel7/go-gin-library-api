@@ -10,20 +10,28 @@ import (
 )
 
 func main() {
+	if err := ConfigInit(); err != nil {
+		log.Fatalf("error env : %s", err.Error())
+	}
 	InitDB()
 
 	bookRepository := repository.NewBookRepository(db)
 	userRepository := repository.NewUserRepository(db)
 	authorRepository := repository.NewAuthorRepository(db)
+	borrowRecordRepository := repository.NewBorrowRecordRepository(db)
 
 	bookUseCase := usecase.NewBookUseCaseImpl(bookRepository, authorRepository)
 	userUseCase := usecase.NewUserUseCaseImpl(userRepository)
+	borrowRecordUseCase := usecase.NewBorrowRecordUseCaseImpl(
+		borrowRecordRepository, bookRepository, userRepository)
 
 	bookHandler := handler.NewBookHandler(bookUseCase)
 	userHandler := handler.NewUserHandler(userUseCase)
+	borrowRecordHandler := handler.NewBorrowRecordHandler(borrowRecordUseCase)
 	router := server.SetupRouter(&server.HandlerOpts{
 		Book: bookHandler,
 		User: userHandler,
+		BorrowRecord: borrowRecordHandler,
 	})
 
 	if err := router.Run(":8081"); err != nil {
