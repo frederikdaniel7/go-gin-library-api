@@ -22,3 +22,7 @@ type CreateBorrowRecordBody struct {
 	Status        string    `json:"status"`
 	BorrowingDate time.Time `json:"borrowing_date"`
 }
+
+type ReturnBookParam struct {
+	ID int `uri:"id" binding:"required"`
+}

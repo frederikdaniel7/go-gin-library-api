@@ -2,13 +2,18 @@ package repository
 
 import (
 	"database/sql"
+	"net/http"
 
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/exception"
 )
 
 type BorrowRecordRepository interface {
 	CreateBorrowRecord(body dto.CreateBorrowRecordBody) (*entity.BorrowRecord, error)
+	FindOneById(id int64) (*entity.BorrowRecord, error)
+	UpdateRecordReturnBook(id int64) (*entity.BorrowRecord, error)
 }
 
 type borrowRecordRepository struct {
@@ -32,5 +37,41 @@ func (r *borrowRecordRepository) CreateBorrowRecord(body dto.CreateBorrowRecordB
 		return nil, err
 	}
 	return &record, nil
+
+}
+
+func (r *borrowRecordRepository) FindOneById(id int64) (*entity.BorrowRecord, error) {
+	var borrowRecord entity.BorrowRecord
+
+	q := `SELECT id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at from borrow_records where id = $1`
+
+	row := r.db.QueryRow(q, id)
+	if row == nil {
+		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
+	}
+	err := row.Scan(&borrowRecord.ID, &borrowRecord.UserID, &borrowRecord.BookID, &borrowRecord.Status,
+		&borrowRecord.BorrowingDate, &borrowRecord.ReturningDate, &borrowRecord.CreatedAt, &borrowRecord.UpdatedAt, &borrowRecord.DeletedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return &borrowRecord, nil
+}
+
+func (r *borrowRecordRepository) UpdateRecordReturnBook(id int64) (*entity.BorrowRecord, error) {
+	var borrowRecord entity.BorrowRecord
+
+	q := `UPDATE borrow_records SET status = 'returned', returning_date = now() where id = $1 
+	RETURNING id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at`
+	row := r.db.QueryRow(q, id)
+	if row == nil {
+		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
+	}
+	err := row.Scan(&borrowRecord.ID, &borrowRecord.UserID, &borrowRecord.BookID, &borrowRecord.Status,
+		&borrowRecord.BorrowingDate, &borrowRecord.ReturningDate, &borrowRecord.CreatedAt, &borrowRecord.UpdatedAt, &borrowRecord.DeletedAt)
+	if err != nil {
+		return nil, exception.NewErrorType(http.StatusBadRequest, q)
+	}
+	return &borrowRecord, nil
 
 }

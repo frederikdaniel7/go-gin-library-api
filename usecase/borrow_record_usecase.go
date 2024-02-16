@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
@@ -13,6 +14,7 @@ import (
 
 type BorrowRecordUseCase interface {
 	NewBorrowRecord(body dto.CreateBorrowRecordBody) (*dto.BorrowRecord, error)
+	ReturnBorrowedBook(id int) (*dto.BorrowRecord, error)
 }
 
 type borrowRecordUseCaseImpl struct {
@@ -68,4 +70,36 @@ func (r *borrowRecordUseCaseImpl) NewBorrowRecord(body dto.CreateBorrowRecordBod
 	recordJson := utils.ConvertBorrowRecordToJson(*bRecord)
 	return &recordJson, nil
 
+}
+
+func (r *borrowRecordUseCaseImpl) ReturnBorrowedBook(id int) (*dto.BorrowRecord, error) {
+
+	checkRecordExists, err := r.borrowRecordRepository.FindOneById(int64(id))
+	if checkRecordExists.ID == 0 {
+		return nil, exception.NewErrorType(
+			http.StatusPreconditionFailed, constant.ResponseMsgRecordDoesNotExist)
+	}
+	if checkRecordExists.Status == "returned" {
+		return nil, exception.NewErrorType(
+			http.StatusPreconditionFailed, constant.ResponseMsgBookAlreadyReturned)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	returnedBook, err := r.bookRepository.IncreaseBookQuantity(checkRecordExists.BookID)
+	if returnedBook == nil {
+		return nil, errors.New(constant.ResponseMsgBookDoesNotExist)
+	}
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(returnedBook.ID)
+	updatedRecord, err := r.borrowRecordRepository.UpdateRecordReturnBook(int64(id))
+	if err != nil {
+		return nil, err
+	}
+	recordJson := utils.ConvertBorrowRecordToJson(*updatedRecord)
+
+	return &recordJson, nil
 }

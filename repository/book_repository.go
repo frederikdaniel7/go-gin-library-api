@@ -19,6 +19,7 @@ type BookRepository interface {
 	CreateBook(body dto.CreateBookBody) (*entity.Book, error)
 	FindOneById(id int64) (*entity.Book, error)
 	DecreaseBookQuantity(id int64) (*entity.Book, error)
+	IncreaseBookQuantity(id int64) (*entity.Book, error)
 }
 
 type bookRepository struct {
@@ -143,13 +144,27 @@ func (r *bookRepository) FindOneById(id int64) (*entity.Book, error) {
 func (r *bookRepository) DecreaseBookQuantity(id int64) (*entity.Book, error) {
 	var book entity.Book
 
-	q := `UPDATE books SET quantity = quantity - 1 WHERE id = $1`
+	q := `UPDATE books SET quantity = quantity - 1 WHERE id = $1 returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at`
 
 	row := r.db.QueryRow(q, id)
 	if row == nil {
-		return nil, errors.New("error query")
+		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
 	}
 
-	row.Scan(&book.ID, &book.Title, &book.Description, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
+	row.Scan(&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
+	return &book, nil
+}
+
+func (r *bookRepository) IncreaseBookQuantity(id int64) (*entity.Book, error) {
+	var book entity.Book
+
+	q := `UPDATE books SET quantity = quantity + 1 WHERE id = $1 returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at`
+
+	row := r.db.QueryRow(q, id)
+	if row == nil {
+		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
+	}
+
+	row.Scan(&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
 	return &book, nil
 }
