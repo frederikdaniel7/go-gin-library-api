@@ -1,5 +1,6 @@
 package constant
 
 const (
-	LenCreateBody = 6
+	LenCreateBookBody = 6
+	LenCreateUserBody = 4
 )
