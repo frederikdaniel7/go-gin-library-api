@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -8,7 +9,7 @@ import (
 )
 
 type AuthorRepository interface {
-	FindOneById(id int64) (*entity.Author, error)
+	FindOneById(ctx context.Context, id int64) (*entity.Author, error)
 }
 
 type authorRepository struct {
@@ -21,7 +22,7 @@ func NewAuthorRepository(db *sql.DB) *authorRepository {
 	}
 }
 
-func (r *authorRepository) FindOneById(id int64) (*entity.Author, error) {
+func (r *authorRepository) FindOneById(ctx context.Context,id int64) (*entity.Author, error) {
 	var author entity.Author
 
 	q := `SELECT a.id, a.author_name from author a where a.id = $1`

@@ -14,14 +14,15 @@ type HandlerOpts struct {
 
 func SetupRouter(opts *HandlerOpts) *gin.Engine {
 	router := gin.Default()
+	router.ContextWithFallback = true
 	router.Use(middleware.HandleError)
 
 	router.Use()
-	router.PATCH("/borrows/:id", opts.BorrowRecord.ReturnBorrowedBook)
+
 	router.POST("/login", opts.User.Login)
 
 	router.Use(middleware.AuthHandler)
-
+	router.PATCH("/borrows/:id", opts.BorrowRecord.ReturnBorrowedBook)
 	router.GET("/books", opts.Book.GetBooks)
 	router.GET("/users", opts.User.GetUsers)
 	router.POST("/books", opts.Book.CreateBook)

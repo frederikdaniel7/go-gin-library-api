@@ -27,7 +27,7 @@ func (h *BorrowRecordHandler) CreateBorrowRecord(ctx *gin.Context) {
 		ctx.Error(err)
 		return
 	}
-	record, err := h.borrowRecordUseCase.NewBorrowRecord(body)
+	record, err := h.borrowRecordUseCase.NewBorrowRecord(ctx, body)
 	if err != nil {
 		ctx.Error(err)
 		return
@@ -46,7 +46,7 @@ func (h *BorrowRecordHandler) ReturnBorrowedBook(ctx *gin.Context) {
 		exception.NewErrorType(http.StatusBadRequest, fmt.Sprintf("%v", idParam))
 		return
 	}
-	record, err := h.borrowRecordUseCase.ReturnBorrowedBook(idParam.ID)
+	record, err := h.borrowRecordUseCase.ReturnBorrowedBook(ctx, idParam.ID)
 	if err != nil {
 		ctx.Error(err)
 		return

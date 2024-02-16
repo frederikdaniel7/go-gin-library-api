@@ -23,7 +23,7 @@ func NewUserHandler(userUseCase usecase.UserUseCase) *UserHandler {
 func (h *UserHandler) GetUsers(ctx *gin.Context) {
 	name := ctx.Query("name")
 
-	users, err := h.userUseCase.GetUsers(name)
+	users, err := h.userUseCase.GetUsers(ctx, name)
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusInternalServerError,
 			dto.Response{
@@ -48,7 +48,7 @@ func (h *UserHandler) CreateUser(ctx *gin.Context) {
 			})
 		return
 	}
-	user, err := h.userUseCase.CreateUser(body)
+	user, err := h.userUseCase.CreateUser(ctx, body)
 	if err != nil {
 		ctx.Error(err)
 		return
@@ -69,7 +69,7 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 			})
 		return
 	}
-	err := h.userUseCase.Login(body)
+	err := h.userUseCase.Login(ctx, body)
 	if err != nil {
 		ctx.Error(err)
 		return

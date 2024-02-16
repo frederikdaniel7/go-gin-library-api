@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -13,8 +14,8 @@ import (
 )
 
 type BorrowRecordUseCase interface {
-	NewBorrowRecord(body dto.CreateBorrowRecordBody) (*dto.BorrowRecord, error)
-	ReturnBorrowedBook(id int) (*dto.BorrowRecord, error)
+	NewBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody) (*dto.BorrowRecord, error)
+	ReturnBorrowedBook(ctx context.Context, id int) (*dto.BorrowRecord, error)
 }
 
 type borrowRecordUseCaseImpl struct {
@@ -35,8 +36,8 @@ func NewBorrowRecordUseCaseImpl(
 	}
 }
 
-func (r *borrowRecordUseCaseImpl) NewBorrowRecord(body dto.CreateBorrowRecordBody) (*dto.BorrowRecord, error) {
-	checkUserExists, err := r.userRepository.FindUserById(body.UserID)
+func (r *borrowRecordUseCaseImpl) NewBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody) (*dto.BorrowRecord, error) {
+	checkUserExists, err := r.userRepository.FindUserById(ctx, body.UserID)
 	if checkUserExists.ID == 0 {
 		return nil, exception.NewErrorType(
 			http.StatusPreconditionFailed, constant.ResponseMsgUserDoesNotExist)
@@ -45,7 +46,7 @@ func (r *borrowRecordUseCaseImpl) NewBorrowRecord(body dto.CreateBorrowRecordBod
 	if err != nil {
 		return nil, err
 	}
-	checkBookExists, err := r.bookRepository.FindOneById(body.BookID)
+	checkBookExists, err := r.bookRepository.FindOneById(ctx, body.BookID)
 	if checkBookExists == nil {
 		return nil, errors.New(constant.ResponseMsgBookDoesNotExist)
 	}
@@ -56,14 +57,14 @@ func (r *borrowRecordUseCaseImpl) NewBorrowRecord(body dto.CreateBorrowRecordBod
 		return nil, err
 	}
 
-	decreasedBook, err := r.bookRepository.DecreaseBookQuantity(body.BookID)
+	decreasedBook, err := r.bookRepository.DecreaseBookQuantity(ctx, body.BookID)
 	if decreasedBook == nil {
 		return nil, errors.New(constant.ResponseMsgBookDoesNotExist)
 	}
 	if err != nil {
 		return nil, err
 	}
-	bRecord, err := r.borrowRecordRepository.CreateBorrowRecord(body)
+	bRecord, err := r.borrowRecordRepository.CreateBorrowRecord(ctx, body)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +73,9 @@ func (r *borrowRecordUseCaseImpl) NewBorrowRecord(body dto.CreateBorrowRecordBod
 
 }
 
-func (r *borrowRecordUseCaseImpl) ReturnBorrowedBook(id int) (*dto.BorrowRecord, error) {
+func (r *borrowRecordUseCaseImpl) ReturnBorrowedBook(ctx context.Context, id int) (*dto.BorrowRecord, error) {
 
-	checkRecordExists, err := r.borrowRecordRepository.FindOneById(int64(id))
+	checkRecordExists, err := r.borrowRecordRepository.FindOneById(ctx, int64(id))
 	if checkRecordExists.ID == 0 {
 		return nil, exception.NewErrorType(
 			http.StatusPreconditionFailed, constant.ResponseMsgRecordDoesNotExist)
@@ -87,7 +88,7 @@ func (r *borrowRecordUseCaseImpl) ReturnBorrowedBook(id int) (*dto.BorrowRecord,
 		return nil, err
 	}
 
-	returnedBook, err := r.bookRepository.IncreaseBookQuantity(checkRecordExists.BookID)
+	returnedBook, err := r.bookRepository.IncreaseBookQuantity(ctx, checkRecordExists.BookID)
 	if returnedBook == nil {
 		return nil, errors.New(constant.ResponseMsgBookDoesNotExist)
 	}
@@ -95,7 +96,7 @@ func (r *borrowRecordUseCaseImpl) ReturnBorrowedBook(id int) (*dto.BorrowRecord,
 		return nil, err
 	}
 	fmt.Println(returnedBook.ID)
-	updatedRecord, err := r.borrowRecordRepository.UpdateRecordReturnBook(int64(id))
+	updatedRecord, err := r.borrowRecordRepository.UpdateRecordReturnBook(ctx, int64(id))
 	if err != nil {
 		return nil, err
 	}

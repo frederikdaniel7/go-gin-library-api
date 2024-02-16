@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
 
@@ -11,9 +12,9 @@ import (
 )
 
 type BorrowRecordRepository interface {
-	CreateBorrowRecord(body dto.CreateBorrowRecordBody) (*entity.BorrowRecord, error)
-	FindOneById(id int64) (*entity.BorrowRecord, error)
-	UpdateRecordReturnBook(id int64) (*entity.BorrowRecord, error)
+	CreateBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody) (*entity.BorrowRecord, error)
+	FindOneById(ctx context.Context, id int64) (*entity.BorrowRecord, error)
+	UpdateRecordReturnBook(ctx context.Context, id int64) (*entity.BorrowRecord, error)
 }
 
 type borrowRecordRepository struct {
@@ -26,12 +27,12 @@ func NewBorrowRecordRepository(db *sql.DB) *borrowRecordRepository {
 	}
 }
 
-func (r *borrowRecordRepository) CreateBorrowRecord(body dto.CreateBorrowRecordBody) (*entity.BorrowRecord, error) {
+func (r *borrowRecordRepository) CreateBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody) (*entity.BorrowRecord, error) {
 	record := entity.BorrowRecord{}
 
 	q := `INSERT INTO borrow_records (user_id, book_id, status, borrowing_date) VALUES ($1, $2,$3,$4) 
 	RETURNING id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at`
-	err := r.db.QueryRow(q, body.UserID, body.BookID, body.Status, body.BorrowingDate).Scan(&record.ID, &record.UserID, &record.BookID, &record.Status,
+	err := r.db.QueryRowContext(ctx, q, body.UserID, body.BookID, body.Status, body.BorrowingDate).Scan(&record.ID, &record.UserID, &record.BookID, &record.Status,
 		&record.BorrowingDate, &record.ReturningDate, &record.CreatedAt, &record.UpdatedAt, &record.DeletedAt)
 	if err != nil {
 		return nil, err
@@ -40,12 +41,12 @@ func (r *borrowRecordRepository) CreateBorrowRecord(body dto.CreateBorrowRecordB
 
 }
 
-func (r *borrowRecordRepository) FindOneById(id int64) (*entity.BorrowRecord, error) {
+func (r *borrowRecordRepository) FindOneById(ctx context.Context, id int64) (*entity.BorrowRecord, error) {
 	var borrowRecord entity.BorrowRecord
 
 	q := `SELECT id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at from borrow_records where id = $1`
 
-	row := r.db.QueryRow(q, id)
+	row := r.db.QueryRowContext(ctx, q, id)
 	if row == nil {
 		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
 	}
@@ -58,12 +59,12 @@ func (r *borrowRecordRepository) FindOneById(id int64) (*entity.BorrowRecord, er
 	return &borrowRecord, nil
 }
 
-func (r *borrowRecordRepository) UpdateRecordReturnBook(id int64) (*entity.BorrowRecord, error) {
+func (r *borrowRecordRepository) UpdateRecordReturnBook(ctx context.Context, id int64) (*entity.BorrowRecord, error) {
 	var borrowRecord entity.BorrowRecord
 
 	q := `UPDATE borrow_records SET status = 'returned', returning_date = now() where id = $1 
 	RETURNING id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at`
-	row := r.db.QueryRow(q, id)
+	row := r.db.QueryRowContext(ctx, q, id)
 	if row == nil {
 		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
 	}

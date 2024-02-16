@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -14,12 +15,12 @@ import (
 )
 
 type BookRepository interface {
-	FindAll() ([]entity.BookDetail, error)
-	FindSimilarBookByTitle(title string) ([]entity.BookDetail, error)
-	CreateBook(body dto.CreateBookBody) (*entity.Book, error)
-	FindOneById(id int64) (*entity.Book, error)
-	DecreaseBookQuantity(id int64) (*entity.Book, error)
-	IncreaseBookQuantity(id int64) (*entity.Book, error)
+	FindAll(ctx context.Context) ([]entity.BookDetail, error)
+	FindSimilarBookByTitle(ctx context.Context, title string) ([]entity.BookDetail, error)
+	CreateBook(ctx context.Context, body dto.CreateBookBody) (*entity.Book, error)
+	FindOneById(ctx context.Context, id int64) (*entity.Book, error)
+	DecreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error)
+	IncreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error)
 }
 
 type bookRepository struct {
@@ -32,13 +33,13 @@ func NewBookRepository(db *sql.DB) *bookRepository {
 	}
 }
 
-func (r *bookRepository) FindAll() ([]entity.BookDetail, error) {
+func (r *bookRepository) FindAll(ctx context.Context) ([]entity.BookDetail, error) {
 	books := []entity.BookDetail{}
 
 	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id, a.author_name, b.created_at,b.updated_at,b.deleted_at from books b
 	LEFT JOIN author a ON a.id = b.author_id`
 
-	rows, err := r.db.Query(q)
+	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, exception.NewErrorType(http.StatusInternalServerError, constant.ResponseMsgErrorInternal)
 	}
@@ -66,14 +67,14 @@ func (r *bookRepository) FindAll() ([]entity.BookDetail, error) {
 	return books, nil
 }
 
-func (r *bookRepository) FindSimilarBookByTitle(title string) ([]entity.BookDetail, error) {
+func (r *bookRepository) FindSimilarBookByTitle(ctx context.Context, title string) ([]entity.BookDetail, error) {
 	books := []entity.BookDetail{}
 
 	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id,a.author_name, b.created_at,b.updated_at,b.deleted_at from books b 
 	LEFT JOIN author a ON a.id = b.author_id
 	where title ILIKE '%' ||$1|| '%'`
 
-	rows, err := r.db.Query(q, title)
+	rows, err := r.db.QueryContext(ctx, q, title)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +105,7 @@ func (r *bookRepository) FindSimilarBookByTitle(title string) ([]entity.BookDeta
 
 }
 
-func (r *bookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, error) {
+func (r *bookRepository) CreateBook(ctx context.Context, body dto.CreateBookBody) (*entity.Book, error) {
 	book := entity.Book{}
 
 	var sb strings.Builder
@@ -117,7 +118,7 @@ func (r *bookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, erro
 		}
 	}
 	sb.WriteString(")returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at")
-	err := r.db.QueryRow(sb.String(), body.Title, body.Description, body.Quantity, body.Cover, body.AuthorID).Scan(
+	err := r.db.QueryRowContext(ctx, sb.String(), body.Title, body.Description, body.Quantity, body.Cover, body.AuthorID).Scan(
 		&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
 	if err != nil {
 		return nil, err
@@ -126,13 +127,13 @@ func (r *bookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, erro
 	return &book, nil
 }
 
-func (r *bookRepository) FindOneById(id int64) (*entity.Book, error) {
+func (r *bookRepository) FindOneById(ctx context.Context, id int64) (*entity.Book, error) {
 	var book entity.Book
 
 	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover, 
 	b.created_at,b.updated_at,b.deleted_at from books b where b.id = $1`
 
-	row := r.db.QueryRow(q, id)
+	row := r.db.QueryRowContext(ctx, q, id)
 	if row == nil {
 		return nil, errors.New("no rows found")
 	}
@@ -141,12 +142,12 @@ func (r *bookRepository) FindOneById(id int64) (*entity.Book, error) {
 	return &book, nil
 }
 
-func (r *bookRepository) DecreaseBookQuantity(id int64) (*entity.Book, error) {
+func (r *bookRepository) DecreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error) {
 	var book entity.Book
 
 	q := `UPDATE books SET quantity = quantity - 1 WHERE id = $1 returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at`
 
-	row := r.db.QueryRow(q, id)
+	row := r.db.QueryRowContext(ctx, q, id)
 	if row == nil {
 		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
 	}
@@ -155,12 +156,12 @@ func (r *bookRepository) DecreaseBookQuantity(id int64) (*entity.Book, error) {
 	return &book, nil
 }
 
-func (r *bookRepository) IncreaseBookQuantity(id int64) (*entity.Book, error) {
+func (r *bookRepository) IncreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error) {
 	var book entity.Book
 
 	q := `UPDATE books SET quantity = quantity + 1 WHERE id = $1 returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at`
 
-	row := r.db.QueryRow(q, id)
+	row := r.db.QueryRowContext(ctx, q, id)
 	if row == nil {
 		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
 	}

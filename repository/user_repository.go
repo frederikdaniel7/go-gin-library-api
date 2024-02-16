@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -15,12 +16,12 @@ import (
 )
 
 type UserRepository interface {
-	FindAll() ([]entity.User, error)
-	FindSimilarUserByName(name string) ([]entity.User, error)
-	FindUserById(id int64) (*entity.User, error)
-	FindUserByEmail(email string) (*entity.User, error)
-	CreateUser(body dto.CreateUserBody) (*entity.User, error)
-	FindUserPassword(body dto.LoginBody) (string, error)
+	FindAll(ctx context.Context) ([]entity.User, error)
+	FindSimilarUserByName(ctx context.Context, name string) ([]entity.User, error)
+	FindUserById(ctx context.Context, id int64) (*entity.User, error)
+	FindUserByEmail(ctx context.Context, email string) (*entity.User, error)
+	CreateUser(ctx context.Context, body dto.CreateUserBody) (*entity.User, error)
+	FindUserPassword(ctx context.Context, body dto.LoginBody) (string, error)
 }
 
 type userRepository struct {
@@ -33,7 +34,7 @@ func NewUserRepository(db *sql.DB) *userRepository {
 	}
 }
 
-func (r *userRepository) CreateUser(body dto.CreateUserBody) (*entity.User, error) {
+func (r *userRepository) CreateUser(ctx context.Context, body dto.CreateUserBody) (*entity.User, error) {
 	user := entity.User{}
 
 	hashedPassword, err := utils.HashPassword(body.Password, 12)
@@ -51,7 +52,7 @@ func (r *userRepository) CreateUser(body dto.CreateUserBody) (*entity.User, erro
 		}
 	}
 	sb.WriteString(")returning id, user_name, email, phone, created_at, updated_at")
-	row := r.db.QueryRow(sb.String(), body.Name, body.Email, hashedPassword, body.Phone)
+	row := r.db.QueryRowContext(ctx, sb.String(), body.Name, body.Email, hashedPassword, body.Phone)
 	err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 	if row == nil {
 		return nil, exception.NewErrorType(http.StatusInternalServerError, constant.ResponseMsgErrorInternal)
@@ -62,12 +63,12 @@ func (r *userRepository) CreateUser(body dto.CreateUserBody) (*entity.User, erro
 	return &user, nil
 }
 
-func (r *userRepository) FindAll() ([]entity.User, error) {
+func (r *userRepository) FindAll(ctx context.Context) ([]entity.User, error) {
 	users := []entity.User{}
 
 	q := `SELECT u.id, u.user_name, u.email, u.phone, u.created_at, u.updated_at, u.deleted_at from users u`
 
-	rows, err := r.db.Query(q)
+	rows, err := r.db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -91,13 +92,13 @@ func (r *userRepository) FindAll() ([]entity.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) FindSimilarUserByName(name string) ([]entity.User, error) {
+func (r *userRepository) FindSimilarUserByName(ctx context.Context, name string) ([]entity.User, error) {
 	users := []entity.User{}
 
 	q := `SELECT u.id, u.user_name, u.email, u.phone, u.created_at, u.updated_at, u.deleted_at from users u
 	where u.user_name ILIKE '%' ||$1|| '%'`
 
-	rows, err := r.db.Query(q, name)
+	rows, err := r.db.QueryContext(ctx, q, name)
 	if err != nil {
 		return nil, err
 	}
@@ -124,13 +125,13 @@ func (r *userRepository) FindSimilarUserByName(name string) ([]entity.User, erro
 
 }
 
-func (r *userRepository) FindUserById(id int64) (*entity.User, error) {
+func (r *userRepository) FindUserById(ctx context.Context, id int64) (*entity.User, error) {
 	var user entity.User
 
 	q := `SELECT u.id, u.user_name, u.email,u.phone,u.created_at, u.updated_at
 	 from users u where u.id = $1 `
 
-	row := r.db.QueryRow(q, id)
+	row := r.db.QueryRowContext(ctx, q, id)
 
 	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
@@ -140,13 +141,13 @@ func (r *userRepository) FindUserById(id int64) (*entity.User, error) {
 
 }
 
-func (r *userRepository) FindUserByEmail(email string) (*entity.User, error) {
+func (r *userRepository) FindUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	var user entity.User
 
 	q := `SELECT u.id, u.user_name, u.email,u.phone,u.created_at, u.updated_at
 	 from users u where u.email = $1 `
 
-	row := r.db.QueryRow(q, email)
+	row := r.db.QueryRowContext(ctx, q, email)
 
 	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
@@ -158,11 +159,11 @@ func (r *userRepository) FindUserByEmail(email string) (*entity.User, error) {
 	return &user, nil
 }
 
-func (r *userRepository) FindUserPassword(body dto.LoginBody) (string, error) {
+func (r *userRepository) FindUserPassword(ctx context.Context, body dto.LoginBody) (string, error) {
 
 	q := `SELECT user_password from users where email = $1 `
 
-	row := r.db.QueryRow(q, body.Email)
+	row := r.db.QueryRowContext(ctx, q, body.Email)
 	var password string
 	err := row.Scan(&password)
 	if err != nil {

@@ -22,7 +22,7 @@ func (h *BookHandler) GetBooks(ctx *gin.Context) {
 
 	title := ctx.Query("title")
 
-	books, err := h.bookUseCase.GetBooks(title)
+	books, err := h.bookUseCase.GetBooks(ctx, title)
 	if err != nil {
 		ctx.Error(err)
 		return
@@ -44,7 +44,7 @@ func (h *BookHandler) CreateBook(ctx *gin.Context) {
 			})
 		return
 	}
-	book, err := h.bookUseCase.CreateBook(body)
+	book, err := h.bookUseCase.CreateBook(ctx, body)
 	if err != nil {
 		ctx.Error(err)
 		return

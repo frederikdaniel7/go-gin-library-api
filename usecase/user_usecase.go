@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"net/http"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
@@ -12,9 +13,9 @@ import (
 )
 
 type UserUseCase interface {
-	GetUsers(title string) ([]dto.User, error)
-	CreateUser(body dto.CreateUserBody) (*dto.User, error)
-	Login(body dto.LoginBody) error
+	GetUsers(ctx context.Context, title string) ([]dto.User, error)
+	CreateUser(ctx context.Context, body dto.CreateUserBody) (*dto.User, error)
+	Login(ctx context.Context, body dto.LoginBody) error
 }
 
 type userUseCaseImpl struct {
@@ -27,16 +28,16 @@ func NewUserUseCaseImpl(userRepository repository.UserRepository) *userUseCaseIm
 	}
 }
 
-func (u *userUseCaseImpl) GetUsers(name string) ([]dto.User, error) {
+func (u *userUseCaseImpl) GetUsers(ctx context.Context, name string) ([]dto.User, error) {
 
 	usersJson := []dto.User{}
 	var users []entity.User
 	var err error
 	if name == "" {
-		users, err = u.userRepository.FindAll()
+		users, err = u.userRepository.FindAll(ctx)
 
 	} else {
-		users, err = u.userRepository.FindSimilarUserByName(name)
+		users, err = u.userRepository.FindSimilarUserByName(ctx, name)
 
 	}
 	if err != nil {
@@ -49,8 +50,8 @@ func (u *userUseCaseImpl) GetUsers(name string) ([]dto.User, error) {
 	return usersJson, nil
 }
 
-func (u *userUseCaseImpl) Login(body dto.LoginBody) error {
-	password, err := u.userRepository.FindUserPassword(body)
+func (u *userUseCaseImpl) Login(ctx context.Context, body dto.LoginBody) error {
+	password, err := u.userRepository.FindUserPassword(ctx, body)
 	if err != nil {
 		return err
 	}
@@ -64,9 +65,9 @@ func (u *userUseCaseImpl) Login(body dto.LoginBody) error {
 	return err
 }
 
-func (u *userUseCaseImpl) CreateUser(body dto.CreateUserBody) (*dto.User, error) {
+func (u *userUseCaseImpl) CreateUser(ctx context.Context, body dto.CreateUserBody) (*dto.User, error) {
 
-	checkUserExist, err := u.userRepository.FindUserByEmail(body.Email)
+	checkUserExist, err := u.userRepository.FindUserByEmail(ctx, body.Email)
 	if checkUserExist.Email == body.Email {
 		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgUserAlreadyExists)
 	}
@@ -74,7 +75,7 @@ func (u *userUseCaseImpl) CreateUser(body dto.CreateUserBody) (*dto.User, error)
 		return nil, err
 	}
 
-	user, err := u.userRepository.CreateUser(body)
+	user, err := u.userRepository.CreateUser(ctx, body)
 	if err != nil {
 		return nil, err
 	}

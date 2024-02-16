@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"net/http"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
@@ -12,8 +13,8 @@ import (
 )
 
 type BookUseCase interface {
-	GetBooks(title string) ([]dto.BookDetail, error)
-	CreateBook(body dto.CreateBookBody) (*dto.Book, error)
+	GetBooks(ctx context.Context, title string) ([]dto.BookDetail, error)
+	CreateBook(ctx context.Context, body dto.CreateBookBody) (*dto.Book, error)
 }
 
 type bookUseCaseImpl struct {
@@ -28,20 +29,21 @@ func NewBookUseCaseImpl(bookRepository repository.BookRepository, authorReposito
 	}
 }
 
-func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.BookDetail, error) {
+func (b *bookUseCaseImpl) GetBooks(ctx context.Context, title string) ([]dto.BookDetail, error) {
 
 	booksJson := []dto.BookDetail{}
 	var books []entity.BookDetail
 	var err error
 	if title == "" {
-		books, err = b.bookRepository.FindAll()
+
+		books, err = b.bookRepository.FindAll(ctx)
 
 	} else {
-		books, err = b.bookRepository.FindSimilarBookByTitle(title)
+		books, err = b.bookRepository.FindSimilarBookByTitle(ctx, title)
 
 	}
 	if err != nil {
-		return nil, err
+		return nil, exception.NewErrorType(http.StatusBadRequest, err.Error())
 	}
 	for _, book := range books {
 		booksJson = append(booksJson, utils.ConvertBookDetailToJson(book))
@@ -51,9 +53,9 @@ func (b *bookUseCaseImpl) GetBooks(title string) ([]dto.BookDetail, error) {
 
 }
 
-func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
+func (b *bookUseCaseImpl) CreateBook(ctx context.Context, body dto.CreateBookBody) (*dto.Book, error) {
 
-	checkAuthorExists, err := b.authorRepository.FindOneById(*body.AuthorID)
+	checkAuthorExists, err := b.authorRepository.FindOneById(ctx, *body.AuthorID)
 	if checkAuthorExists.ID == nil {
 		return nil, exception.NewErrorType(
 			http.StatusNotFound,
@@ -62,7 +64,7 @@ func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error)
 	if err != nil {
 		return nil, err
 	}
-	checkExist, err := b.bookRepository.FindSimilarBookByTitle(body.Title)
+	checkExist, err := b.bookRepository.FindSimilarBookByTitle(ctx, body.Title)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +76,7 @@ func (b *bookUseCaseImpl) CreateBook(body dto.CreateBookBody) (*dto.Book, error)
 		}
 	}
 
-	book, err := b.bookRepository.CreateBook(body)
+	book, err := b.bookRepository.CreateBook(ctx, body)
 	if err != nil {
 		return nil, err
 	}
