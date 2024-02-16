@@ -11,7 +11,7 @@ func CreateAndSign(email string, secretKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"email": email,
 		"iss":   "the-issuer",
-		"exp":   time.Now().Add(2 * time.Minute).Unix(),
+		"exp":   time.Now().Add(10 * time.Minute).Unix(),
 	})
 
 	signed, err := token.SignedString([]byte(secretKey))
