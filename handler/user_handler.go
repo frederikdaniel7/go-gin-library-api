@@ -2,9 +2,11 @@ package handler
 
 import (
 	"net/http"
+	"os"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/usecase"
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -72,9 +74,16 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 		ctx.Error(err)
 		return
 	}
-	ctx.JSON(http.StatusNoContent, dto.Response{
-		Msg:  "OK",
-		Data: nil,
+	jwtToken, err := utils.CreateAndSign(body.Email, os.Getenv("SECRET_KEY"))
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+	ctx.JSON(http.StatusOK, dto.Response{
+		Msg: "OK",
+		Data: dto.UserToken{
+			Token: jwtToken,
+		},
 	})
 
 }
