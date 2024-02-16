@@ -17,9 +17,10 @@ func SetupRouter(opts *HandlerOpts) *gin.Engine {
 	router.Use(middleware.HandleError)
 
 	router.Use()
+	router.PATCH("/borrows/:id", opts.BorrowRecord.ReturnBorrowedBook)
 	router.POST("/login", opts.User.Login)
+
 	router.Use(middleware.AuthHandler)
-	
 
 	router.GET("/books", opts.Book.GetBooks)
 	router.GET("/users", opts.User.GetUsers)
