@@ -9,18 +9,19 @@ import (
 )
 
 var db *sql.DB
+var tx *sql.Tx
 
 func InitDB() error {
 	var err error
 	db, err = ConnectDB()
-	if err!= nil {
-        log.Fatalf("error connecting to database: %s", err.Error())
+	if err != nil {
+		log.Fatalf("error connecting to database: %s", err.Error())
 		return err
-    }
+	}
 	return err
 }
 func ConnectDB() (*sql.DB, error) {
-		db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, err
 	}
