@@ -69,12 +69,12 @@ func (h *UserHandler) Login(ctx *gin.Context) {
 			})
 		return
 	}
-	err := h.userUseCase.Login(ctx, body)
+	id, err := h.userUseCase.Login(ctx, body)
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
-	jwtToken, err := utils.CreateAndSign(body.Email, os.Getenv("SECRET_KEY"))
+	jwtToken, err := utils.CreateAndSign(id, os.Getenv("SECRET_KEY"))
 	if err != nil {
 		ctx.Error(err)
 		return

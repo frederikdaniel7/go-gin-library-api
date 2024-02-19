@@ -7,11 +7,11 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateAndSign(email string, secretKey string) (string, error) {
+func CreateAndSign(userId int, secretKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"email": email,
-		"iss":   "the-issuer",
-		"exp":   time.Now().Add(10 * time.Minute).Unix(),
+		"id":  userId,
+		"iss": "the-issuer",
+		"exp": time.Now().Add(10 * time.Minute).Unix(),
 	})
 
 	signed, err := token.SignedString([]byte(secretKey))

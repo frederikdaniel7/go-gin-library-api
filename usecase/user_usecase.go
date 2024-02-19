@@ -15,7 +15,7 @@ import (
 type UserUseCase interface {
 	GetUsers(ctx context.Context, title string) ([]dto.User, error)
 	CreateUser(ctx context.Context, body dto.CreateUserBody) (*dto.User, error)
-	Login(ctx context.Context, body dto.LoginBody) error
+	Login(ctx context.Context, body dto.LoginBody) (int, error)
 }
 
 type userUseCaseImpl struct {
@@ -50,19 +50,23 @@ func (u *userUseCaseImpl) GetUsers(ctx context.Context, name string) ([]dto.User
 	return usersJson, nil
 }
 
-func (u *userUseCaseImpl) Login(ctx context.Context, body dto.LoginBody) error {
+func (u *userUseCaseImpl) Login(ctx context.Context, body dto.LoginBody) (int, error) {
+	user, err := u.userRepository.FindUserByEmail(ctx, body.Email)
+	if err != nil {
+		return 0, err
+	}
 	password, err := u.userRepository.FindUserPassword(ctx, body)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	plainPassword, err := utils.CheckPassword(body.Password, []byte(password))
 	if err != nil {
-		return exception.NewErrorType(http.StatusUnauthorized, "Wrong Password")
+		return 0, exception.NewErrorType(http.StatusUnauthorized, "Wrong Password")
 	}
 	if !plainPassword {
-		return exception.NewErrorType(http.StatusUnauthorized, "Wrong Password")
+		return 0, exception.NewErrorType(http.StatusUnauthorized, "Wrong Password")
 	}
-	return err
+	return int(user.ID), err
 }
 
 func (u *userUseCaseImpl) CreateUser(ctx context.Context, body dto.CreateUserBody) (*dto.User, error) {

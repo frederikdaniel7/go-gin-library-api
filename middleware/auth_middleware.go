@@ -48,6 +48,7 @@ func AuthHandler(c *gin.Context) {
 		return
 	}
 
+	c.Set("id", claims["id"])
 	c.Next()
 
 }
