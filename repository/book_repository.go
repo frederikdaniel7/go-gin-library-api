@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/database"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/exception"
@@ -132,8 +133,9 @@ func (r *bookRepository) FindOneById(ctx context.Context, id int64) (*entity.Boo
 
 	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover, 
 	b.created_at,b.updated_at,b.deleted_at from books b where b.id = $1`
+	runner := database.NewRunner(r.db, database.GetQueryRunner(ctx))
+	row := runner.QueryRowContext(ctx, q, id)
 
-	row := r.db.QueryRowContext(ctx, q, id)
 	if row == nil {
 		return nil, errors.New("no rows found")
 	}
@@ -147,7 +149,8 @@ func (r *bookRepository) DecreaseBookQuantity(ctx context.Context, id int64) (*e
 
 	q := `UPDATE books SET quantity = quantity - 1 WHERE id = $1 returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at`
 
-	row := r.db.QueryRowContext(ctx, q, id)
+	runner := database.NewRunner(r.db, database.GetQueryRunner(ctx))
+	row := runner.QueryRowContext(ctx, q, id)
 	if row == nil {
 		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
 	}

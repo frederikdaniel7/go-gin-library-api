@@ -6,13 +6,14 @@ import (
 	"net/http"
 
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/database"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/exception"
 )
 
 type BorrowRecordRepository interface {
-	CreateBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody) (*entity.BorrowRecord, error)
+	CreateBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody, userId int64) (*entity.BorrowRecord, error)
 	FindOneById(ctx context.Context, id int64) (*entity.BorrowRecord, error)
 	UpdateRecordReturnBook(ctx context.Context, id int64) (*entity.BorrowRecord, error)
 }
@@ -27,12 +28,14 @@ func NewBorrowRecordRepository(db *sql.DB) *borrowRecordRepository {
 	}
 }
 
-func (r *borrowRecordRepository) CreateBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody) (*entity.BorrowRecord, error) {
+func (r *borrowRecordRepository) CreateBorrowRecord(ctx context.Context, body dto.CreateBorrowRecordBody, userId int64) (*entity.BorrowRecord, error) {
 	record := entity.BorrowRecord{}
 
 	q := `INSERT INTO borrow_records (user_id, book_id, status, borrowing_date) VALUES ($1, $2,$3,$4) 
 	RETURNING id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at`
-	err := r.db.QueryRowContext(ctx, q, body.UserID, body.BookID, body.Status, body.BorrowingDate).Scan(&record.ID, &record.UserID, &record.BookID, &record.Status,
+	runner := database.NewRunner(r.db, database.GetQueryRunner(ctx))
+
+	err := runner.QueryRowContext(ctx, q, userId, body.BookID, body.Status, body.BorrowingDate).Scan(&record.ID, &record.UserID, &record.BookID, &record.Status,
 		&record.BorrowingDate, &record.ReturningDate, &record.CreatedAt, &record.UpdatedAt, &record.DeletedAt)
 	if err != nil {
 		return nil, err

@@ -17,7 +17,6 @@ type BorrowRecord struct {
 }
 
 type CreateBorrowRecordBody struct {
-	UserID        int64     `json:"user_id"`
 	BookID        int64     `json:"book_id"`
 	Status        string    `json:"status"`
 	BorrowingDate time.Time `json:"borrowing_date"`

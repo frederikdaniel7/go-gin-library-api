@@ -21,13 +21,13 @@ func NewBorrowRecordHandler(borrowRecordUseCase usecase.BorrowRecordUseCase) *Bo
 }
 
 func (h *BorrowRecordHandler) CreateBorrowRecord(ctx *gin.Context) {
-
+	userId := ctx.GetFloat64("id")
 	var body dto.CreateBorrowRecordBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.Error(err)
 		return
 	}
-	record, err := h.borrowRecordUseCase.NewBorrowRecord(ctx, body)
+	record, err := h.borrowRecordUseCase.NewBorrowRecord(ctx, body, int(userId))
 	if err != nil {
 		ctx.Error(err)
 		return
