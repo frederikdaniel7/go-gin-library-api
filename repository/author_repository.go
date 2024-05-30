@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
+	"github.com/frederikdaniel7/go-gin-library-api/entity"
 )
 
 type AuthorRepository interface {
@@ -22,7 +22,7 @@ func NewAuthorRepository(db *sql.DB) *authorRepository {
 	}
 }
 
-func (r *authorRepository) FindOneById(ctx context.Context,id int64) (*entity.Author, error) {
+func (r *authorRepository) FindOneById(ctx context.Context, id int64) (*entity.Author, error) {
 	var author entity.Author
 
 	q := `SELECT a.id, a.author_name from author a where a.id = $1`

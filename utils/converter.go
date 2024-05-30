@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
+	"github.com/frederikdaniel7/go-gin-library-api/dto"
+	"github.com/frederikdaniel7/go-gin-library-api/entity"
 )
 
 func ConvertBookToJson(book entity.Book) dto.Book {
@@ -86,4 +86,3 @@ func ConvertBorrowRecordToJson(record entity.BorrowRecord) dto.BorrowRecord {
 
 	return converted
 }
-

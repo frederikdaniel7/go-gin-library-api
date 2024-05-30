@@ -3,11 +3,11 @@ package main
 import (
 	"log"
 
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/database"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/handler"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/repository"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/server"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/usecase"
+	"github.com/frederikdaniel7/go-gin-library-api/database"
+	"github.com/frederikdaniel7/go-gin-library-api/handler"
+	"github.com/frederikdaniel7/go-gin-library-api/repository"
+	"github.com/frederikdaniel7/go-gin-library-api/server"
+	"github.com/frederikdaniel7/go-gin-library-api/usecase"
 )
 
 func main() {

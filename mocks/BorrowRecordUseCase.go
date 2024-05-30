@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	dto "git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
+	dto "github.com/frederikdaniel7/go-gin-library-api/dto"
 	mock "github.com/stretchr/testify/mock"
 )
 

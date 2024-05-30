@@ -5,7 +5,7 @@ package mocks
 import (
 	context "context"
 
-	entity "git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
+	entity "github.com/frederikdaniel7/go-gin-library-api/entity"
 	mock "github.com/stretchr/testify/mock"
 )
 

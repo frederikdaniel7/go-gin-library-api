@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"net/http/pprof"
 
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/handler"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/middleware"
+	"github.com/frederikdaniel7/go-gin-library-api/handler"
+	"github.com/frederikdaniel7/go-gin-library-api/middleware"
 	"github.com/gin-gonic/gin"
 )
 

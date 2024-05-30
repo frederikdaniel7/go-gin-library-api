@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/exception"
+	"github.com/frederikdaniel7/go-gin-library-api/exception"
 )
 
 type transactor struct {

@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/exception"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/usecase"
+	"github.com/frederikdaniel7/go-gin-library-api/dto"
+	"github.com/frederikdaniel7/go-gin-library-api/exception"
+	"github.com/frederikdaniel7/go-gin-library-api/usecase"
 	"github.com/gin-gonic/gin"
 )
 

@@ -4,12 +4,12 @@ import (
 	"context"
 	"net/http"
 
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/exception"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/repository"
-	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/utils"
+	"github.com/frederikdaniel7/go-gin-library-api/constant"
+	"github.com/frederikdaniel7/go-gin-library-api/dto"
+	"github.com/frederikdaniel7/go-gin-library-api/entity"
+	"github.com/frederikdaniel7/go-gin-library-api/exception"
+	"github.com/frederikdaniel7/go-gin-library-api/repository"
+	"github.com/frederikdaniel7/go-gin-library-api/utils"
 )
 
 type BookUseCase interface {
