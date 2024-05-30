@@ -52,6 +52,9 @@ func (u *userUseCaseImpl) GetUsers(ctx context.Context, name string) ([]dto.User
 
 func (u *userUseCaseImpl) Login(ctx context.Context, body dto.LoginBody) (int, error) {
 	user, err := u.userRepository.FindUserByEmail(ctx, body.Email)
+	if user.Email == "" {
+		return 0, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgUserDoesNotExist)
+	}
 	if err != nil {
 		return 0, err
 	}

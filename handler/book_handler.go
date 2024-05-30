@@ -28,8 +28,10 @@ func (h *BookHandler) GetBooks(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, dto.Response{
-		Msg:  "OK",
-		Data: books,
+		Msg: "OK",
+		Data: dto.Books{
+			Books: books,
+		},
 	})
 
 }

@@ -52,7 +52,7 @@ func (h *BorrowRecordHandler) ReturnBorrowedBook(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusAccepted, dto.Response{
+	ctx.JSON(http.StatusOK, dto.Response{
 		Msg:  "OK",
 		Data: record,
 	})

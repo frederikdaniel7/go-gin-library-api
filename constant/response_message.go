@@ -5,6 +5,7 @@ const (
 	ResponseMsgErrorNotFound = "no book found"
 	ResponseMsgErrorInternal = "Internal Server Error"
 	ResponseMsgBadRequest    = "Bad Request"
+	ResponseMsgUnauthorized  = "Unauthorized"
 
 	ResponseMsgBookAlreadyExists = "book already exists"
 	ResponseMsgUserAlreadyExists = "user already exists"

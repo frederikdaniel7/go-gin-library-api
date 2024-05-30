@@ -33,8 +33,8 @@ func (r *borrowRecordRepository) CreateBorrowRecord(ctx context.Context, body dt
 
 	q := `INSERT INTO borrow_records (user_id, book_id, status, borrowing_date) VALUES ($1, $2,$3,$4) 
 	RETURNING id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at`
-	runner := database.NewRunner(r.db, database.GetQueryRunner(ctx))
 
+	runner := database.PickQuerier(ctx, r.db)
 	err := runner.QueryRowContext(ctx, q, userId, body.BookID, body.Status, body.BorrowingDate).Scan(&record.ID, &record.UserID, &record.BookID, &record.Status,
 		&record.BorrowingDate, &record.ReturningDate, &record.CreatedAt, &record.UpdatedAt, &record.DeletedAt)
 	if err != nil {
@@ -69,7 +69,7 @@ func (r *borrowRecordRepository) UpdateRecordReturnBook(ctx context.Context, id 
 	RETURNING id, user_id, book_id, status, borrowing_date,returning_date, created_at, updated_at, deleted_at`
 	row := r.db.QueryRowContext(ctx, q, id)
 	if row == nil {
-		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
+		return nil, exception.NewErrorType(http.StatusBadRequest, "here")
 	}
 	err := row.Scan(&borrowRecord.ID, &borrowRecord.UserID, &borrowRecord.BookID, &borrowRecord.Status,
 		&borrowRecord.BorrowingDate, &borrowRecord.ReturningDate, &borrowRecord.CreatedAt, &borrowRecord.UpdatedAt, &borrowRecord.DeletedAt)

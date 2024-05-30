@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	entity "git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -12,13 +14,13 @@ type AuthorRepository struct {
 	mock.Mock
 }
 
-// FindOneById provides a mock function with given fields: id
-func (_m *AuthorRepository) FindOneById(id int64) (*entity.Author, error) {
-	ret := _m.Called(id)
+// FindOneById provides a mock function with given fields: ctx, id
+func (_m *AuthorRepository) FindOneById(ctx context.Context, id int64) (*entity.Author, error) {
+	ret := _m.Called(ctx, id)
 
 	var r0 *entity.Author
-	if rf, ok := ret.Get(0).(func(int64) *entity.Author); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(context.Context, int64) *entity.Author); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.Author)
@@ -26,8 +28,8 @@ func (_m *AuthorRepository) FindOneById(id int64) (*entity.Author, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int64) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}

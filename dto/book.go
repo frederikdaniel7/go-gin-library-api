@@ -15,6 +15,10 @@ type Book struct {
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 }
 
+type Books struct {
+	Books []BookDetail `json:"books"`
+}
+
 type BookDetail struct {
 	ID          int64      `json:"id"`
 	Title       string     `json:"title"`

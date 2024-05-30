@@ -17,9 +17,9 @@ type BorrowRecord struct {
 }
 
 type CreateBorrowRecordBody struct {
-	BookID        int64     `json:"book_id"`
-	Status        string    `json:"status"`
-	BorrowingDate time.Time `json:"borrowing_date"`
+	BookID        int64     `json:"book_id" binding:"required"`
+	Status        string    `json:"status" binding:"required"`
+	BorrowingDate time.Time `json:"borrowing_date" binding:"required"`
 }
 
 type ReturnBookParam struct {

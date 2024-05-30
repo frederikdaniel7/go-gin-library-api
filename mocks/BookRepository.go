@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	dto "git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	entity "git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/entity"
 
@@ -14,13 +16,13 @@ type BookRepository struct {
 	mock.Mock
 }
 
-// CreateBook provides a mock function with given fields: body
-func (_m *BookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, error) {
-	ret := _m.Called(body)
+// CreateBook provides a mock function with given fields: ctx, body
+func (_m *BookRepository) CreateBook(ctx context.Context, body dto.CreateBookBody) (*entity.Book, error) {
+	ret := _m.Called(ctx, body)
 
 	var r0 *entity.Book
-	if rf, ok := ret.Get(0).(func(dto.CreateBookBody) *entity.Book); ok {
-		r0 = rf(body)
+	if rf, ok := ret.Get(0).(func(context.Context, dto.CreateBookBody) *entity.Book); ok {
+		r0 = rf(ctx, body)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*entity.Book)
@@ -28,8 +30,8 @@ func (_m *BookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, err
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(dto.CreateBookBody) error); ok {
-		r1 = rf(body)
+	if rf, ok := ret.Get(1).(func(context.Context, dto.CreateBookBody) error); ok {
+		r1 = rf(ctx, body)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -37,22 +39,22 @@ func (_m *BookRepository) CreateBook(body dto.CreateBookBody) (*entity.Book, err
 	return r0, r1
 }
 
-// FindAll provides a mock function with given fields:
-func (_m *BookRepository) FindAll() ([]entity.BookDetail, error) {
-	ret := _m.Called()
+// DecreaseBookQuantity provides a mock function with given fields: ctx, id
+func (_m *BookRepository) DecreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error) {
+	ret := _m.Called(ctx, id)
 
-	var r0 []entity.BookDetail
-	if rf, ok := ret.Get(0).(func() []entity.BookDetail); ok {
-		r0 = rf()
+	var r0 *entity.Book
+	if rf, ok := ret.Get(0).(func(context.Context, int64) *entity.Book); ok {
+		r0 = rf(ctx, id)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]entity.BookDetail)
+			r0 = ret.Get(0).(*entity.Book)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -60,13 +62,13 @@ func (_m *BookRepository) FindAll() ([]entity.BookDetail, error) {
 	return r0, r1
 }
 
-// FindSimilarBookByTitle provides a mock function with given fields: title
-func (_m *BookRepository) FindSimilarBookByTitle(title string) ([]entity.BookDetail, error) {
-	ret := _m.Called(title)
+// FindAll provides a mock function with given fields: ctx
+func (_m *BookRepository) FindAll(ctx context.Context) ([]entity.BookDetail, error) {
+	ret := _m.Called(ctx)
 
 	var r0 []entity.BookDetail
-	if rf, ok := ret.Get(0).(func(string) []entity.BookDetail); ok {
-		r0 = rf(title)
+	if rf, ok := ret.Get(0).(func(context.Context) []entity.BookDetail); ok {
+		r0 = rf(ctx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]entity.BookDetail)
@@ -74,8 +76,77 @@ func (_m *BookRepository) FindSimilarBookByTitle(title string) ([]entity.BookDet
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(title)
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FindOneById provides a mock function with given fields: ctx, id
+func (_m *BookRepository) FindOneById(ctx context.Context, id int64) (*entity.Book, error) {
+	ret := _m.Called(ctx, id)
+
+	var r0 *entity.Book
+	if rf, ok := ret.Get(0).(func(context.Context, int64) *entity.Book); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Book)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FindSimilarBookByTitle provides a mock function with given fields: ctx, title
+func (_m *BookRepository) FindSimilarBookByTitle(ctx context.Context, title string) ([]entity.BookDetail, error) {
+	ret := _m.Called(ctx, title)
+
+	var r0 []entity.BookDetail
+	if rf, ok := ret.Get(0).(func(context.Context, string) []entity.BookDetail); ok {
+		r0 = rf(ctx, title)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]entity.BookDetail)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, title)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// IncreaseBookQuantity provides a mock function with given fields: ctx, id
+func (_m *BookRepository) IncreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error) {
+	ret := _m.Called(ctx, id)
+
+	var r0 *entity.Book
+	if rf, ok := ret.Get(0).(func(context.Context, int64) *entity.Book); ok {
+		r0 = rf(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*entity.Book)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
+		r1 = rf(ctx, id)
 	} else {
 		r1 = ret.Error(1)
 	}

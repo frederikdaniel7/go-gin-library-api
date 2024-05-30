@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -133,11 +132,12 @@ func (r *bookRepository) FindOneById(ctx context.Context, id int64) (*entity.Boo
 
 	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover, 
 	b.created_at,b.updated_at,b.deleted_at from books b where b.id = $1`
-	runner := database.NewRunner(r.db, database.GetQueryRunner(ctx))
+	runner := database.PickQuerier(ctx, r.db)
+
 	row := runner.QueryRowContext(ctx, q, id)
 
 	if row == nil {
-		return nil, errors.New("no rows found")
+		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBookDoesNotExist)
 	}
 	row.Scan(&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)
 
@@ -149,10 +149,10 @@ func (r *bookRepository) DecreaseBookQuantity(ctx context.Context, id int64) (*e
 
 	q := `UPDATE books SET quantity = quantity - 1 WHERE id = $1 returning id, title, book_description, quantity, cover, created_at, updated_at, deleted_at`
 
-	runner := database.NewRunner(r.db, database.GetQueryRunner(ctx))
+	runner := database.PickQuerier(ctx, r.db)
 	row := runner.QueryRowContext(ctx, q, id)
 	if row == nil {
-		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBadRequest)
+		return nil, exception.NewErrorType(http.StatusBadRequest, constant.ResponseMsgBookDoesNotExist)
 	}
 
 	row.Scan(&book.ID, &book.Title, &book.Description, &book.Quantity, &book.Cover, &book.CreatedAt, &book.UpdatedAt, &book.DeletedAt)

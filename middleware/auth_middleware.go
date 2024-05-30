@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/constant"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	"git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/utils"
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ func AuthHandler(c *gin.Context) {
 
 	if header == "" {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, dto.Response{
-			Msg: "Unauthorized here",
+			Msg: constant.ResponseMsgUnauthorized,
 		})
 		return
 	}
@@ -30,20 +31,20 @@ func AuthHandler(c *gin.Context) {
 	claims, err := utils.ParseAndVerify(token, os.Getenv("SECRET_KEY"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, dto.Response{
-			Msg: err.Error(),
+			Msg: constant.ResponseMsgUnauthorized,
 		})
 		return
 	}
 	expired, err := claims.GetExpirationTime()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, dto.Response{
-			Msg: err.Error(),
+		c.AbortWithStatusJSON(http.StatusInternalServerError, dto.Response{
+			Msg: constant.ResponseMsgErrorInternal,
 		})
 		return
 	}
 	if expired.Before(time.Now()) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, dto.Response{
-			Msg: err.Error(),
+			Msg: constant.ResponseMsgUnauthorized,
 		})
 		return
 	}

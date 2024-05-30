@@ -7,7 +7,6 @@ type Crypto interface {
 	CheckPassword(password string, hash []byte) (bool, error)
 }
 
-
 func HashPassword(pwd string, cost int) ([]byte, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(pwd), cost)
 	if err != nil {

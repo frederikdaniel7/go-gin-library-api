@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"log"
@@ -152,6 +153,22 @@ func TestBookHandler_CreateBook(t *testing.T) {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
+		mockUseCase := new(mocks.BookUseCase)
+		mockUseCase.On("CreateBook", body).Return(&book, nil)
+		bookHandler := handler.NewBookHandler(mockUseCase)
+
+		w := httptest.NewRecorder()
+		req, err := http.NewRequest(http.MethodPost, "/books", bytes.NewReader(bodyJson))
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		router := server.SetupRouter(&server.HandlerOpts{
+			Book: bookHandler,
+		})
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusCreated, w.Result().StatusCode)
+		assert.Equal(t, string(expectedRes), w.Body.String())
 
 	})
 }

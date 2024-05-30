@@ -3,6 +3,8 @@
 package mocks
 
 import (
+	context "context"
+
 	dto "git.garena.com/sea-labs-id/bootcamp/batch-03/frederik-hutabarat/exercise-library-api/dto"
 	mock "github.com/stretchr/testify/mock"
 )
@@ -12,13 +14,13 @@ type BookUseCase struct {
 	mock.Mock
 }
 
-// CreateBook provides a mock function with given fields: body
-func (_m *BookUseCase) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
-	ret := _m.Called(body)
+// CreateBook provides a mock function with given fields: ctx, body
+func (_m *BookUseCase) CreateBook(ctx context.Context, body dto.CreateBookBody) (*dto.Book, error) {
+	ret := _m.Called(ctx, body)
 
 	var r0 *dto.Book
-	if rf, ok := ret.Get(0).(func(dto.CreateBookBody) *dto.Book); ok {
-		r0 = rf(body)
+	if rf, ok := ret.Get(0).(func(context.Context, dto.CreateBookBody) *dto.Book); ok {
+		r0 = rf(ctx, body)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*dto.Book)
@@ -26,8 +28,8 @@ func (_m *BookUseCase) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(dto.CreateBookBody) error); ok {
-		r1 = rf(body)
+	if rf, ok := ret.Get(1).(func(context.Context, dto.CreateBookBody) error); ok {
+		r1 = rf(ctx, body)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -35,13 +37,13 @@ func (_m *BookUseCase) CreateBook(body dto.CreateBookBody) (*dto.Book, error) {
 	return r0, r1
 }
 
-// GetBooks provides a mock function with given fields: title
-func (_m *BookUseCase) GetBooks(title string) ([]dto.BookDetail, error) {
-	ret := _m.Called(title)
+// GetBooks provides a mock function with given fields: ctx, title
+func (_m *BookUseCase) GetBooks(ctx context.Context, title string) ([]dto.BookDetail, error) {
+	ret := _m.Called(ctx, title)
 
 	var r0 []dto.BookDetail
-	if rf, ok := ret.Get(0).(func(string) []dto.BookDetail); ok {
-		r0 = rf(title)
+	if rf, ok := ret.Get(0).(func(context.Context, string) []dto.BookDetail); ok {
+		r0 = rf(ctx, title)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]dto.BookDetail)
@@ -49,8 +51,8 @@ func (_m *BookUseCase) GetBooks(title string) ([]dto.BookDetail, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(title)
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, title)
 	} else {
 		r1 = ret.Error(1)
 	}

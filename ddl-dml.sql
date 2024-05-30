@@ -2,13 +2,13 @@ drop table users;
 
 create table users (
 	id bigserial primary key,
-	user_name	varchar not null,
+	user_name varchar not null,
 	email varchar not null,
 	phone varchar not null,
 	created_at timestamp not null default now(),
 	updated_at timestamp not null default now(),
 	deleted_at timestamp
-	);
+);
 
 
 drop table author;
