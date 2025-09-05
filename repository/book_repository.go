@@ -98,7 +98,7 @@ func (r *bookRepository) FindSimilarBookByTitle(ctx context.Context, title strin
 	}
 
 	err = rows.Err()
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), sql.ErrNoRows.Error()) {
 		return nil, err
 	}
 	return books, nil

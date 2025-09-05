@@ -54,16 +54,18 @@ func (b *bookUseCaseImpl) GetBooks(ctx context.Context, title string) ([]dto.Boo
 }
 
 func (b *bookUseCaseImpl) CreateBook(ctx context.Context, body dto.CreateBookBody) (*dto.Book, error) {
+	if body.AuthorID != nil {
+		checkAuthorExists, err := b.authorRepository.FindOneById(ctx, *body.AuthorID)
+		if checkAuthorExists.ID == nil {
+			return nil, exception.NewErrorType(
+				http.StatusNotFound,
+				constant.ResponseMsgAuthorDoesNotExist)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
 
-	checkAuthorExists, err := b.authorRepository.FindOneById(ctx, *body.AuthorID)
-	if checkAuthorExists.ID == nil {
-		return nil, exception.NewErrorType(
-			http.StatusNotFound,
-			constant.ResponseMsgAuthorDoesNotExist)
-	}
-	if err != nil {
-		return nil, err
-	}
 	checkExist, err := b.bookRepository.FindSimilarBookByTitle(ctx, body.Title)
 	if err != nil {
 		return nil, err

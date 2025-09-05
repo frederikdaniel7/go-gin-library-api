@@ -5,6 +5,7 @@ create table users (
 	user_name varchar not null,
 	email varchar not null,
 	phone varchar not null,
+	user_password varchar not null,
 	created_at timestamp not null default now(),
 	updated_at timestamp not null default now(),
 	deleted_at timestamp
@@ -54,8 +55,8 @@ insert into books (title, book_description,quantity,cover, author_id) values
 ('i','desc i', 500, 'soft', 1),
 ('j','desc j', 550, 'soft', 1);
 
-insert into users (user_name, email, phone) values
-('user a', 'usera@gmail.com', '08888888888'),
-('User B', 'userb@gmail.com', '08888888984'),
-('user C', 'userc@gmail.com', '08888899999'),
-('user D', 'userd@gmail.com', '08899999999');
+insert into users (user_name, email, phone, user_password) values
+('user a', 'usera@gmail.com', '08888888888','$2a$12$YDotifLXDoDZ9S19dL.bu.bn6kgOmrix3680R625LX3f6gkFZ3.iq'),
+('User B', 'userb@gmail.com', '08888888984','$2a$12$YDotifLXDoDZ9S19dL.bu.bn6kgOmrix3680R625LX3f6gkFZ3.iq'),
+('user C', 'userc@gmail.com', '08888899999','$2a$12$YDotifLXDoDZ9S19dL.bu.bn6kgOmrix3680R625LX3f6gkFZ3.iq'),
+('user D', 'userd@gmail.com', '08899999999','$2a$12$YDotifLXDoDZ9S19dL.bu.bn6kgOmrix3680R625LX3f6gkFZ3.iq');
