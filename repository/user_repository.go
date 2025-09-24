@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/frederikdaniel7/go-gin-library-api/constant"
@@ -37,17 +38,17 @@ func NewUserRepository(db *sql.DB) *userRepository {
 func (r *userRepository) CreateUser(ctx context.Context, body dto.CreateUserBody) (*entity.User, error) {
 	user := entity.User{}
 
+	lenCreateBody := reflect.ValueOf(body).NumField()
 	hashedPassword, err := utils.HashPassword(body.Password, 12)
 	if err != nil {
 		return nil, err
 	}
 
 	var sb strings.Builder
-	sb.WriteString("INSERT INTO users (user_name, email, user_password, phone)")
-	sb.WriteString("VALUES (")
-	for i := 1; i <= constant.LenCreateUserBody; i++ {
+	sb.WriteString(`INSERT INTO users (user_name, email, user_password, phone) VALUES (`)
+	for i := 1; i <= lenCreateBody; i++ {
 		sb.WriteString("$" + fmt.Sprintf("%d", i))
-		if i != constant.LenCreateUserBody {
+		if i != lenCreateBody {
 			sb.WriteString(",")
 		}
 	}

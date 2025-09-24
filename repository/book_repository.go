@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/frederikdaniel7/go-gin-library-api/constant"
@@ -107,11 +108,11 @@ func (r *bookRepository) FindSimilarBookByTitle(ctx context.Context, title strin
 
 func (r *bookRepository) CreateBook(ctx context.Context, body dto.CreateBookBody) (*entity.Book, error) {
 	book := entity.Book{}
-
+	lenCreateBody := reflect.ValueOf(body).NumField()
 	var sb strings.Builder
-	sb.WriteString("INSERT INTO books (title, book_description, quantity, cover, author_id)")
-	sb.WriteString("VALUES (")
-	for i := 1; i < constant.LenCreateBookBody; i++ {
+
+	sb.WriteString(`INSERT INTO books (title, book_description, quantity, cover, author_id) VALUES (`)
+	for i := 1; i <= lenCreateBody; i++ {
 		sb.WriteString("$" + fmt.Sprintf("%d", i))
 		if i != 5 {
 			sb.WriteString(",")
