@@ -36,7 +36,7 @@ func main() {
 		BorrowRecord: borrowRecordHandler,
 	})
 
-	if err := router.Run(":8081"); err != nil {
+	if err := router.RunTLS(":8081", "server.pem", "key.pem"); err != nil {
 		log.Fatal(err)
 	}
 
