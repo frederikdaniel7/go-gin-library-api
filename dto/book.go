@@ -15,8 +15,17 @@ type Book struct {
 	DeletedAt   *time.Time `json:"deleted_at,omitempty"`
 }
 
-type Books struct {
-	Books []BookDetail `json:"books"`
+type BookResponse struct {
+	Books       []BookDetail `json:"books"`
+	ItemCount   int          `json:"item_count,omitempty"`
+	PageCount   int          `json:"page_count"`
+	CurrentPage int          `json:"current_page"`
+}
+
+type BookQuery struct {
+	Title string `form:"title" binding:"omitempty"`
+	Size  int    `form:"size" binding:"omitempty"`
+	Page  int    `form:"page" binding:"omitempty"`
 }
 
 type BookDetail struct {

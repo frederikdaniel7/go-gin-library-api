@@ -19,18 +19,26 @@ func NewBookHandler(bookUseCase usecase.BookUseCase) *BookHandler {
 }
 
 func (h *BookHandler) GetBooks(ctx *gin.Context) {
+	var queryParams dto.BookQuery
 
-	title := ctx.Query("title")
+	err := ctx.ShouldBindQuery(&queryParams)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
 
-	books, err := h.bookUseCase.GetBooks(ctx, title)
+	books, err := h.bookUseCase.GetBooks(ctx, queryParams)
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
 	ctx.JSON(http.StatusOK, dto.Response{
 		Msg: "OK",
-		Data: dto.Books{
-			Books: books,
+		Data: dto.BookResponse{
+			Books:       books.Books,
+			PageCount:   books.PageCount,
+			ItemCount:   books.ItemCount,
+			CurrentPage: books.CurrentPage,
 		},
 	})
 

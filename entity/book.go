@@ -16,6 +16,12 @@ type Book struct {
 	DeletedAt   sql.NullTime
 }
 
+type BookPackage struct {
+	Books     []BookDetail
+	Count     int
+	TotalData int
+}
+
 type BookDetail struct {
 	ID          int64
 	Title       string

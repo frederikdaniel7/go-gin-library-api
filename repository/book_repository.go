@@ -16,7 +16,7 @@ import (
 )
 
 type BookRepository interface {
-	FindAll(ctx context.Context) ([]entity.BookDetail, error)
+	FindAll(ctx context.Context, p entity.Paging) (*entity.BookPackage, error)
 	FindSimilarBookByTitle(ctx context.Context, title string) ([]entity.BookDetail, error)
 	CreateBook(ctx context.Context, body dto.CreateBookBody) (*entity.Book, error)
 	FindOneById(ctx context.Context, id int64) (*entity.Book, error)
@@ -34,13 +34,23 @@ func NewBookRepository(db *sql.DB) *bookRepository {
 	}
 }
 
-func (r *bookRepository) FindAll(ctx context.Context) ([]entity.BookDetail, error) {
-	books := []entity.BookDetail{}
+func (r *bookRepository) FindAll(ctx context.Context, pagination entity.Paging) (*entity.BookPackage, error) {
 
-	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id, a.author_name, b.created_at,b.updated_at,b.deleted_at from books b
-	LEFT JOIN author a ON a.id = b.author_id`
+	result := entity.BookPackage{}
 
-	rows, err := r.db.QueryContext(ctx, q)
+	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id, a.author_name, b.created_at,b.updated_at,b.deleted_at from books b LEFT JOIN author a ON a.id = b.author_id`
+	qCount := `SELECT COUNT(b.*) FROM books b LEFT JOIN author a ON a.id = b.author_id `
+	qPag := ` WHERE 1 = 1 LIMIT $1 OFFSET $2 `
+	if pagination.Size == nil {
+		pageSize := constant.DefaultPaginationSize
+		pagination.Size = &pageSize
+	}
+	if pagination.Page == nil {
+		pageNav := constant.DefaultPaginationPage
+		pagination.Page = &pageNav
+	}
+	q += qPag
+	rows, err := r.db.QueryContext(ctx, q, pagination.Size, ((*pagination.Page - 1) * 10))
 	if err != nil {
 		return nil, exception.NewErrorType(http.StatusInternalServerError, constant.ResponseMsgErrorInternal)
 	}
@@ -58,14 +68,24 @@ func (r *bookRepository) FindAll(ctx context.Context) ([]entity.BookDetail, erro
 		if author.ID != nil {
 			book.Author = &author
 		}
-		books = append(books, book)
+		result.Books = append(result.Books, book)
+		result.Count++
 	}
 
 	err = rows.Err()
 	if err != nil {
 		return nil, err
 	}
-	return books, nil
+	res := r.db.QueryRowContext(ctx, qCount)
+	if res.Err() != nil {
+		return nil, err
+	}
+
+	if err = res.Scan(&result.TotalData); err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
 
 func (r *bookRepository) FindSimilarBookByTitle(ctx context.Context, title string) ([]entity.BookDetail, error) {
