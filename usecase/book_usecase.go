@@ -58,6 +58,12 @@ func (b *bookUseCaseImpl) GetBooks(ctx context.Context, query dto.BookQuery) (*d
 			bookPackage.Books = books
 		}
 	}
+
+	if err != nil {
+		return nil, exception.NewErrorType(http.StatusBadRequest, err.Error())
+	}
+
+	bookPackage.TotalData, err = b.bookRepository.GetBookCount(ctx)
 	if err != nil {
 		return nil, exception.NewErrorType(http.StatusBadRequest, err.Error())
 	}

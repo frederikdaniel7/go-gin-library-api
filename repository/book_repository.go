@@ -22,6 +22,7 @@ type BookRepository interface {
 	FindOneById(ctx context.Context, id int64) (*entity.Book, error)
 	DecreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error)
 	IncreaseBookQuantity(ctx context.Context, id int64) (*entity.Book, error)
+	GetBookCount(ctx context.Context) (int, error)
 }
 
 type bookRepository struct {
@@ -38,18 +39,10 @@ func (r *bookRepository) FindAll(ctx context.Context, pagination entity.Paging) 
 
 	result := entity.BookPackage{}
 
-	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id, a.author_name, b.created_at,b.updated_at,b.deleted_at from books b LEFT JOIN author a ON a.id = b.author_id`
-	qCount := `SELECT COUNT(b.*) FROM books b LEFT JOIN author a ON a.id = b.author_id `
-	qPag := ` WHERE 1 = 1 LIMIT $1 OFFSET $2 `
-	if pagination.Size == nil {
-		pageSize := constant.DefaultPaginationSize
-		pagination.Size = &pageSize
-	}
-	if pagination.Page == nil {
-		pageNav := constant.DefaultPaginationPage
-		pagination.Page = &pageNav
-	}
-	q += qPag
+	q := `SELECT b.id,b.title,b.book_description, b.quantity,b.cover,a.id, a.author_name, b.created_at,b.updated_at,b.deleted_at from books b 
+	LEFT JOIN author a ON a.id = b.author_id WHERE 1 = 1 LIMIT $1 OFFSET $2 `
+
+
 	rows, err := r.db.QueryContext(ctx, q, pagination.Size, ((*pagination.Page - 1) * 10))
 	if err != nil {
 		return nil, exception.NewErrorType(http.StatusInternalServerError, constant.ResponseMsgErrorInternal)
@@ -76,16 +69,22 @@ func (r *bookRepository) FindAll(ctx context.Context, pagination entity.Paging) 
 	if err != nil {
 		return nil, err
 	}
-	res := r.db.QueryRowContext(ctx, qCount)
-	if res.Err() != nil {
-		return nil, err
-	}
-
-	if err = res.Scan(&result.TotalData); err != nil {
-		return nil, err
-	}
 
 	return &result, nil
+}
+
+func (r *bookRepository) GetBookCount(ctx context.Context) (count int, err error) {
+	qCount := `SELECT COUNT(b.*) FROM books b LEFT JOIN author a ON a.id = b.author_id `
+
+	res := r.db.QueryRowContext(ctx, qCount)
+	if res.Err() != nil {
+		return count, err
+	}
+
+	if err = res.Scan(&count); err != nil {
+		return count, err
+	}
+	return count, err
 }
 
 func (r *bookRepository) FindSimilarBookByTitle(ctx context.Context, title string) ([]entity.BookDetail, error) {
